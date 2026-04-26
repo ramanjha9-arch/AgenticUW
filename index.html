@@ -1,1006 +1,1487 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>UW·MATRIX — Multi-Agent Underwriting System</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>NovaBench UW — Bionic Underwriting System</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #0A0E1A; --bg2: #0D1117; --bg3: #111827;
-    --border: #1E2535; --border2: #2D3748;
-    --text: #E2E8F0; --muted: #718096; --dim: #4A5568;
-    --blue: #4F8EF7; --purple: #7C5CBF; --cyan: #2AB7CA;
-    --amber: #F5A623; --pink: #E84393; --green: #00C48C;
-    --orange: #FF6B35; --gray: #6C757D;
-  }
-  body { font-family: 'IBM Plex Mono', 'Courier New', monospace; background: var(--bg); color: var(--text); min-height: 100vh; }
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --white:#FFFFFF;--gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;
+  --gray-400:#9CA3AF;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;--gray-800:#1F2937;
+  --gray-900:#111827;--gray-950:#0A0F1A;
+  --blue-50:#EFF6FF;--blue-100:#DBEAFE;--blue-500:#3B82F6;--blue-600:#2563EB;--blue-700:#1D4ED8;
+  --indigo-500:#6366F1;--indigo-600:#4F46E5;
+  --green-50:#F0FDF4;--green-100:#DCFCE7;--green-500:#22C55E;--green-600:#16A34A;
+  --amber-50:#FFFBEB;--amber-100:#FEF3C7;--amber-500:#F59E0B;--amber-600:#D97706;
+  --red-50:#FEF2F2;--red-100:#FEE2E2;--red-500:#EF4444;--red-600:#DC2626;
+  --purple-50:#FAF5FF;--purple-500:#A855F7;--purple-600:#9333EA;
+  --cyan-500:#06B6D4;
+  --bg:#F8FAFC;--surface:#FFFFFF;--surface2:#F1F5F9;
+  --border:#E2E8F0;--border2:#CBD5E1;
+  --text:#0F172A;--text2:#475569;--text3:#94A3B8;
+  --radius:12px;--radius-sm:8px;--radius-lg:16px;--radius-xl:20px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 6px -1px rgba(0,0,0,.07),0 2px 4px -1px rgba(0,0,0,.04);
+  --shadow-lg:0 10px 15px -3px rgba(0,0,0,.07),0 4px 6px -2px rgba(0,0,0,.04);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+code,pre,.mono{font-family:'JetBrains Mono',monospace}
 
-/* ── Layout ── */
-#app { display: flex; flex-direction: column; min-height: 100vh; }
-header { background: linear-gradient(135deg, #0D1117, #111827); border-bottom: 1px solid var(–border); padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-.logo-wrap { display: flex; align-items: center; gap: 14px; }
-.logo-icon { background: linear-gradient(135deg, var(–blue), var(–purple)); border-radius: 10px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-.logo-name { font-family: ‘Space Grotesk’, sans-serif; font-size: 17px; font-weight: 700; color: #F7FAFC; letter-spacing: -0.5px; }
-.logo-sub { font-size: 9px; color: var(–muted); letter-spacing: 2px; margin-top: 1px; }
-.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(–green); display: inline-block; margin-right: 6px; }
-.status-dot.off { background: var(–pink); animation: pulse 1.5s infinite; }
-.status-label { font-size: 11px; color: var(–muted); }
-main { max-width: 1400px; margin: 0 auto; padding: 24px 28px; width: 100%; flex: 1; }
-footer { text-align: center; padding: 20px; border-top: 1px solid var(–border); color: var(–dim); font-size: 10px; letter-spacing: 1px; }
+/* HEADER */
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;box-shadow:var(--shadow)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{width:34px;height:34px;background:linear-gradient(135deg,#2563EB,#6366F1);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.logo-text{font-size:15px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.logo-badge{font-size:9px;background:linear-gradient(135deg,#2563EB,#6366F1);color:#fff;padding:2px 7px;border-radius:20px;font-weight:600;letter-spacing:.5px;margin-left:4px}
+.header-nav{display:flex;align-items:center;gap:8px}
+.nav-btn{background:transparent;border:none;font-family:inherit;font-size:12px;font-weight:500;color:var(--text2);padding:6px 12px;border-radius:var(--radius-sm);cursor:pointer;transition:all .15s}
+.nav-btn:hover{background:var(--gray-100);color:var(--text)}
+.nav-btn.active{background:var(--blue-50);color:var(--blue-600)}
+.conn-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .2s}
+.conn-pill .pip{width:7px;height:7px;border-radius:50%;background:var(--gray-300)}
+.conn-pill.ok .pip{background:var(--green-500)}
+.conn-pill.ok{border-color:#BBF7D0;background:var(--green-50);color:var(--green-600)}
 
-/* ── API Key Banner ── */
-#api-banner { background: #1A0E20; border: 1px solid #7C5CBF44; border-radius: 12px; padding: 18px 20px; margin-bottom: 22px; }
-#api-banner h3 { color: #C084FC; font-size: 12px; font-weight: 600; margin-bottom: 10px; }
-#api-banner p { color: var(–muted); font-size: 11px; margin-bottom: 14px; line-height: 1.6; }
-#api-banner a { color: #79C0FF; }
-.api-row { display: flex; gap: 10px; }
+/* LAYOUT */
+.app-layout{display:flex;height:calc(100vh - 60px)}
+.sidebar{width:260px;background:var(--surface);border-right:1px solid var(--border);padding:16px;overflow-y:auto;flex-shrink:0;display:flex;flex-direction:column;gap:6px}
+.main-area{flex:1;overflow-y:auto;padding:24px}
+@media(max-width:900px){.sidebar{display:none}.main-area{padding:16px}}
 
-/* ── Tabs ── */
-.tabs { display: flex; border-bottom: 1px solid var(–border); margin-bottom: 24px; gap: 2px; }
-.tab { background: transparent; border: none; border-bottom: 2px solid transparent; color: var(–muted); cursor: pointer; font-family: inherit; font-size: 12px; padding: 9px 18px; transition: all .2s; }
-.tab.active { color: var(–blue); border-bottom-color: var(–blue); }
-.tab:hover:not(.active) { color: var(–text); }
-.panel { display: none; } .panel.active { display: block; animation: slideIn .25s ease; }
+/* SIDEBAR */
+.sidebar-section{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1.5px;padding:8px 8px 4px;margin-top:8px}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer;transition:all .15s;font-size:13px;font-weight:500;color:var(--text2)}
+.sidebar-item:hover{background:var(--gray-50);color:var(--text)}
+.sidebar-item.active{background:var(--blue-50);color:var(--blue-600)}
+.sidebar-item .si-icon{font-size:15px;width:20px;text-align:center}
+.sidebar-item .si-badge{margin-left:auto;font-size:10px;background:var(--blue-600);color:#fff;padding:1px 7px;border-radius:10px;font-weight:600}
+.agent-mini{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--radius-sm);font-size:11px;color:var(--text2);transition:all .2s}
+.agent-mini .am-dot{width:8px;height:8px;border-radius:50%;background:var(--gray-200);flex-shrink:0;transition:all .3s}
+.agent-mini.active .am-dot{background:var(--blue-500);box-shadow:0 0 0 3px #BFDBFE}
+.agent-mini.done .am-dot{background:var(--green-500)}
+.agent-mini.active{color:var(--blue-600);background:var(--blue-50)}
+.agent-mini.done{color:var(--green-600)}
+.agent-mini .am-name{flex:1;font-weight:500}
+.agent-mini .am-model{font-size:9px;color:var(--text3);background:var(--surface2);padding:1px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace}
 
-/* ── Agents grid ── */
-.agents-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
-@media(max-width:900px){ .agents-grid { grid-template-columns: repeat(2, 1fr); } }
-@media(max-width:480px){ .agents-grid { grid-template-columns: 1fr; } }
-.agent-card { background: var(–bg2); border: 1px solid var(–border); border-radius: 12px; padding: 16px; position: relative; overflow: hidden; transition: all .3s; }
-.agent-card.active { border-color: var(–ac, var(–blue)); box-shadow: 0 0 22px var(–ac-g, #4F8EF733); transform: translateY(-2px); }
-.agent-card.done { border-color: #00C48C44; background: #00C48C08; }
-.agent-bar { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(–border); transition: background .4s; }
-.agent-card.active .agent-bar { background: var(–ac, var(–blue)); }
-.agent-card.done .agent-bar { background: var(–green); }
-.agent-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-.agent-icon { font-size: 22px; }
-.agent-num { font-size: 10px; color: var(–dim); font-weight: 600; letter-spacing: 1px; }
-.agent-name { font-family: ‘Space Grotesk’, sans-serif; font-size: 12px; font-weight: 700; color: var(–text); margin-bottom: 6px; }
-.agent-card.active .agent-name { color: var(–ac, var(–blue)); }
-.agent-desc { font-size: 10px; color: var(–muted); line-height: 1.5; }
-.agent-progress { margin-top: 10px; height: 2px; border-radius: 2px; background: transparent; }
-.agent-card.active .agent-progress { background: linear-gradient(90deg, var(–ac, var(–blue)), transparent); animation: pulse 1.5s infinite; }
-.check { color: var(–green); font-size: 13px; }
-.spinner { width: 14px; height: 14px; border: 2px solid var(–ac, var(–blue)); border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; display: inline-block; }
+/* PANELS */
+.panel{display:none}.panel.active{display:block}
 
-/* ── Buttons ── */
-.btn-primary { background: linear-gradient(135deg, var(–blue), var(–purple)); border: none; color: #fff; padding: 11px 26px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; letter-spacing: .4px; transition: all .2s; }
-.btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 24px #4F8EF755; }
-.btn-primary:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
-.btn-sec { background: var(–bg2); border: 1px solid var(–border2); color: #A0AEC0; padding: 9px 18px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 12px; transition: all .2s; }
-.btn-sec:hover { background: var(–border2); color: var(–text); }
-.btn-sm { padding: 6px 14px; font-size: 11px; }
-.cta-row { display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; }
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.card-sm{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;box-shadow:var(--shadow)}
+.card-title{font-size:12px;font-weight:700;color:var(--text2);letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:6px}
 
-/* ── Inputs ── */
-input, textarea, select { background: #060A10; border: 1px solid var(–border2); color: var(–text); border-radius: 6px; padding: 9px 13px; font-family: inherit; font-size: 12px; outline: none; width: 100%; }
-input:focus, textarea:focus { border-color: var(–blue); }
-label { font-size: 11px; color: var(–muted); display: block; margin-bottom: 5px; }
+/* SETUP AREA */
+.setup-hero{background:linear-gradient(135deg,#1E3A8A 0%,#312E81 50%,#1E1B4B 100%);border-radius:var(--radius-lg);padding:32px;color:#fff;margin-bottom:24px;position:relative;overflow:hidden}
+.setup-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(255,255,255,.08),transparent 70%);border-radius:50%}
+.setup-hero h1{font-size:22px;font-weight:800;margin-bottom:6px;letter-spacing:-.5px}
+.setup-hero p{font-size:13px;opacity:.8;line-height:1.6;max-width:500px;margin-bottom:20px}
+.setup-input-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.setup-input{flex:1;min-width:240px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:var(--radius-sm);padding:10px 14px;font-family:inherit;font-size:13px;outline:none}
+.setup-input::placeholder{color:rgba(255,255,255,.5)}
+.setup-input:focus{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.15)}
 
-/* ── Upload ── */
-.upload-zone { border: 2px dashed var(–border2); border-radius: 14px; padding: 40px 24px; text-align: center; cursor: pointer; transition: all .2s; }
-.upload-zone:hover, .upload-zone.drag { border-color: var(–blue); background: #4F8EF708; }
-.upload-icon { font-size: 38px; margin-bottom: 12px; }
-.upload-title { font-family: ‘Space Grotesk’, sans-serif; font-size: 15px; font-weight: 600; margin-bottom: 6px; }
-.upload-sub { font-size: 11px; color: var(–muted); }
-.upload-name { margin-top: 10px; color: var(–blue); font-size: 11px; }
+/* MODEL GRID */
+.model-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+@media(max-width:700px){.model-grid{grid-template-columns:1fr}}
+.model-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;transition:all .2s;position:relative}
+.model-card:hover{border-color:var(--blue-300);box-shadow:var(--shadow-md)}
+.model-card.selected{border-color:var(--blue-500);background:var(--blue-50)}
+.model-card.connected{border-color:#BBF7D0}
+.model-card.err{border-color:#FECACA;background:#FEF2F2}
+.model-status-dot{position:absolute;top:12px;right:12px;width:9px;height:9px;border-radius:50%;background:var(--gray-300)}
+.model-status-dot.ok{background:var(--green-500)}
+.model-status-dot.err{background:var(--red-500);animation:pulse 1.5s infinite}
+.model-status-dot.testing{background:var(--amber-500);animation:pulse .8s infinite}
+.model-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px}
+.model-desc{font-size:11px;color:var(--text2);line-height:1.4;margin-bottom:8px}
+.model-tag{font-size:9px;font-weight:600;padding:2px 8px;border-radius:4px;background:var(--blue-50);color:var(--blue-600);font-family:'JetBrains Mono',monospace}
+.model-card.selected .model-tag{background:var(--blue-600);color:#fff}
+.model-use-label{font-size:10px;color:var(--text3);margin-top:6px}
 
-/* ── Human checkpoint ── */
-.checkpoint { background: #1A1200; border: 2px solid var(–amber); border-radius: 12px; padding: 22px; margin-bottom: 22px; animation: slideIn .3s ease; }
-.checkpoint h3 { color: var(–amber); font-family: ‘Space Grotesk’, sans-serif; font-size: 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
-.checkpoint p { color: #A0AEC0; font-size: 12px; margin-bottom: 14px; line-height: 1.6; }
-.decision-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+/* UPLOAD ZONE */
+.upload-area{border:2px dashed var(--border2);border-radius:var(--radius-lg);padding:40px 24px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2)}
+.upload-area:hover,.upload-area.drag{border-color:var(--blue-500);background:var(--blue-50)}
+.upload-icon{font-size:36px;margin-bottom:12px}
+.upload-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
+.upload-sub{font-size:12px;color:var(--text3);margin-bottom:16px}
+.doc-pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center}
+.doc-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;background:var(--blue-50);border:1px solid var(--blue-100);border-radius:20px;font-size:11px;font-weight:500;color:var(--blue-600)}
+.doc-pill .rm{cursor:pointer;color:var(--text3);margin-left:2px;line-height:1;font-size:13px}
+.doc-pill .rm:hover{color:var(--red-500)}
 
-/* ── Results ── */
-.decision-banner { border-radius: 14px; padding: 24px; margin-bottom: 22px; text-align: center; animation: slideIn .3s ease; }
-.decision-banner .dec-icon { font-size: 36px; margin-bottom: 10px; }
-.decision-banner .dec-text { font-family: ‘Space Grotesk’, sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 10px; }
-.decision-banner .dec-narr { color: #A0AEC0; font-size: 12px; max-width: 580px; margin: 0 auto 14px; line-height: 1.7; }
-.badges { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-.badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: .4px; }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
-@media(max-width:700px){ .grid-2 { grid-template-columns: 1fr; } }
-.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-@media(max-width:600px){ .grid-3 { grid-template-columns: 1fr; } }
-.card { background: var(–bg2); border: 1px solid var(–border); border-radius: 12px; padding: 18px; }
-.card-title { font-size: 11px; font-weight: 600; letter-spacing: 1px; margin-bottom: 14px; }
-.kv { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(–border); font-size: 11px; gap: 12px; }
-.kv:last-child { border-bottom: none; }
-.kv span:first-child { color: var(–muted); flex-shrink: 0; }
-.kv span:last-child { color: var(–text); text-align: right; word-break: break-all; }
-.excl-pill { margin-top: 6px; padding: 4px 10px; background: #E8439311; border-radius: 6px; font-size: 10px; color: var(–pink); }
-.sp-box { background: #1A1000; border: 1px solid #F5A62344; border-radius: 12px; padding: 18px; margin-bottom: 16px; }
-.ref-box { background: #00102A; border: 1px solid #4F8EF744; border-radius: 12px; padding: 18px; margin-bottom: 16px; }
-.evi-pill { margin-top: 6px; padding: 4px 10px; background: #4F8EF711; border-radius: 6px; font-size: 10px; color: #79C0FF; }
-.human-override { background: #0A1A12; border: 1px solid var(–green); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; color: var(–green); font-size: 12px; }
+/* BUTTONS */
+.btn{border:none;font-family:inherit;font-weight:600;cursor:pointer;border-radius:var(--radius-sm);transition:all .15s;display:inline-flex;align-items:center;gap:6px;letter-spacing:-.1px}
+.btn-primary{background:linear-gradient(135deg,var(--blue-600),var(--indigo-600));color:#fff;padding:10px 22px;font-size:13px}
+.btn-primary:hover:not(:disabled){box-shadow:0 4px 12px rgba(37,99,235,.4);transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-secondary{background:var(--surface);border:1px solid var(--border);color:var(--text2);padding:9px 18px;font-size:12px}
+.btn-secondary:hover{background:var(--gray-50);color:var(--text);border-color:var(--border2)}
+.btn-green{background:linear-gradient(135deg,var(--green-500),var(--green-600));color:#fff;padding:10px 22px;font-size:13px}
+.btn-green:hover{box-shadow:0 4px 12px rgba(22,163,74,.35);transform:translateY(-1px)}
+.btn-sm{padding:6px 14px;font-size:11px;border-radius:6px}
+.btn-icon{width:32px;height:32px;padding:0;justify-content:center;background:var(--surface);border:1px solid var(--border);color:var(--text2)}
 
-/* ── JSON block ── */
-.json-block { background: #060A10; border: 1px solid var(–border); border-radius: 8px; padding: 14px; overflow: auto; font-size: 10px; line-height: 1.7; max-height: 480px; white-space: pre-wrap; color: #79C0FF; }
+/* PIPELINE TRACKER */
+.pipeline-tracker{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:20px;box-shadow:var(--shadow)}
+.tracker-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.tracker-title{font-size:14px;font-weight:700;color:var(--text)}
+.tracker-progress{font-size:12px;color:var(--text3)}
+.tracker-bar-wrap{height:4px;background:var(--gray-100);border-radius:2px;margin-bottom:20px;overflow:hidden}
+.tracker-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue-500),var(--indigo-500));border-radius:2px;transition:width .5s ease}
+.agents-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:800px){.agents-flow{grid-template-columns:repeat(2,1fr)}}
+.agent-tile{background:var(--gray-50);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:14px;transition:all .3s;position:relative;overflow:hidden}
+.agent-tile.active{border-color:var(--blue-400);background:var(--blue-50);box-shadow:0 0 0 3px #BFDBFE50}
+.agent-tile.done{border-color:#BBF7D0;background:var(--green-50)}
+.agent-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--border);transition:background .3s}
+.agent-tile.active::before{background:var(--blue-500)}
+.agent-tile.done::before{background:var(--green-500)}
+.at-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.at-icon{font-size:18px}
+.at-num{font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.5px}
+.at-model-badge{font-size:8px;color:var(--text3);background:var(--gray-100);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;margin-top:2px}
+.at-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px}
+.agent-tile.active .at-name{color:var(--blue-600)}
+.agent-tile.done .at-name{color:var(--green-600)}
+.at-desc{font-size:9px;color:var(--text3);line-height:1.4}
+.at-status{margin-top:8px;height:2px;border-radius:1px;background:transparent}
+.agent-tile.active .at-status{background:linear-gradient(90deg,var(--blue-400),transparent);animation:shimmer 1.5s infinite}
+.spinner{width:12px;height:12px;border:2px solid var(--blue-200);border-top-color:var(--blue-500);border-radius:50%;animation:spin 1s linear infinite;display:inline-block}
+.checkmark{color:var(--green-500);font-size:13px;font-weight:700}
 
-/* ── Logs ── */
-.log-container { background: #060A10; border: 1px solid var(–border); border-radius: 12px; padding: 18px; }
-.log-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-.log-title { color: var(–muted); font-size: 12px; }
-.log-list { max-height: 560px; overflow-y: auto; }
-.log-entry { display: flex; gap: 12px; padding: 7px 0; border-bottom: 1px solid #0D1117; font-size: 10px; line-height: 1.5; animation: slideIn .2s ease; }
-.log-time { color: var(–dim); min-width: 65px; flex-shrink: 0; }
-.log-agent { font-weight: 600; min-width: 110px; flex-shrink: 0; }
-.log-msg { color: #A0AEC0; }
-.log-msg.error { color: var(–pink); }
-.log-msg.warning { color: var(–amber); }
-.log-msg.success { color: var(–green); }
-.log-empty { color: var(–dim); font-size: 12px; padding: 30px; text-align: center; }
+/* CHECKPOINT */
+.checkpoint-banner{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:2px solid var(--amber-500);border-radius:var(--radius);padding:20px;margin-bottom:20px;animation:fadeUp .3s ease}
+.checkpoint-banner h3{color:#92400E;font-size:14px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.checkpoint-banner p{color:#78350F;font-size:12px;margin-bottom:12px;line-height:1.6}
+.dec-btns{display:flex;gap:8px;flex-wrap:wrap}
 
-/* ── Error ── */
-.error-box { background: #1A0010; border: 1px solid #E8439366; border-radius: 10px; padding: 14px 16px; margin-top: 18px; display: flex; gap: 12px; align-items: flex-start; animation: slideIn .25s ease; }
-.error-box .etitle { color: var(–pink); font-weight: 600; font-size: 12px; margin-bottom: 4px; }
-.error-box .emsg { color: #A0AEC0; font-size: 11px; }
-.close-btn { margin-left: auto; background: transparent; border: none; color: var(–muted); cursor: pointer; font-size: 16px; flex-shrink: 0; }
+/* ════ RESULTS AREA ════ */
+.results-page{animation:fadeUp .3s ease}
 
-/* ── Animations ── */
-@keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:.45; } }
-@keyframes spin { from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
-@keyframes slideIn { from{ opacity:0; transform:translateY(7px); } to{ opacity:1; transform:translateY(0); } }
+/* Decision Hero */
+.dec-hero{border-radius:var(--radius-lg);padding:28px;margin-bottom:20px;position:relative;overflow:hidden}
+.dec-hero.accept{background:linear-gradient(135deg,#ECFDF5,#D1FAE5);border:1.5px solid #6EE7B7}
+.dec-hero.accept-cond{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:1.5px solid #FCD34D}
+.dec-hero.rated{background:linear-gradient(135deg,#EFF6FF,#DBEAFE);border:1.5px solid #93C5FD}
+.dec-hero.refer{background:linear-gradient(135deg,#FAF5FF,#EDE9FE);border:1.5px solid #C4B5FD}
+.dec-hero.decline{background:linear-gradient(135deg,#FEF2F2,#FEE2E2);border:1.5px solid #FCA5A5}
+.dec-hero-label{font-size:10px;font-weight:700;letter-spacing:1.5px;margin-bottom:8px;opacity:.7;text-transform:uppercase}
+.dec-hero-title{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-bottom:8px}
+.dec-hero-narr{font-size:13px;line-height:1.7;max-width:600px;margin-bottom:16px;opacity:.85}
+.dec-meta-row{display:flex;gap:10px;flex-wrap:wrap}
+.dec-meta-chip{display:flex;flex-direction:column;background:rgba(255,255,255,.7);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.9);border-radius:var(--radius-sm);padding:10px 16px;min-width:100px}
+.dec-meta-chip .dmc-label{font-size:9px;font-weight:600;opacity:.6;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.dec-meta-chip .dmc-value{font-size:16px;font-weight:800;letter-spacing:-.3px}
 
-/* ── Misc ── */
-.section-sep { border: none; border-top: 1px solid var(–border); margin: 20px 0; }
-.mt-16 { margin-top: 16px; }
-.mb-12 { margin-bottom: 12px; }
-.text-center { text-align: center; }
-.empty-state { text-align: center; color: var(–dim); padding: 60px 20px; }
-.empty-state .ei { font-size: 42px; margin-bottom: 12px; }
+/* Score Gauge */
+.score-section{display:grid;grid-template-columns:220px 1fr;gap:16px;margin-bottom:20px;align-items:start}
+@media(max-width:700px){.score-section{grid-template-columns:1fr}}
+.score-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;box-shadow:var(--shadow)}
+.score-ring-wrap{position:relative;width:130px;height:130px;margin:0 auto 12px}
+.score-ring-wrap canvas{position:absolute;top:0;left:0}
+.score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-num{font-size:30px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.score-denom{font-size:11px;color:var(--text3);font-weight:500}
+.score-cat{font-size:12px;font-weight:700;margin-top:4px}
+.score-cat-desc{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* Risk flags */
+.flags-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.flag-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.flag-tab{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid;transition:all .15s}
+.flag-tab.all{border-color:var(--border2);color:var(--text2);background:var(--surface2)}
+.flag-tab.all.sel{border-color:var(--gray-700);background:var(--gray-700);color:#fff}
+.flag-tab.critical{border-color:#FECACA;color:var(--red-600);background:#FEF2F2}
+.flag-tab.critical.sel{background:var(--red-500);color:#fff;border-color:var(--red-500)}
+.flag-tab.warning{border-color:#FDE68A;color:#92400E;background:#FFFBEB}
+.flag-tab.warning.sel{background:var(--amber-500);color:#fff;border-color:var(--amber-500)}
+.flag-tab.ok{border-color:#BBF7D0;color:var(--green-600);background:var(--green-50)}
+.flag-tab.ok.sel{background:var(--green-500);color:#fff;border-color:var(--green-500)}
+.flags-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.flag-card{border-radius:var(--radius-sm);padding:14px;display:flex;gap:12px;border:1.5px solid;transition:all .2s}
+.flag-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.flag-card.critical{background:#FEF2F2;border-color:#FECACA}
+.flag-card.warning{background:#FFFBEB;border-color:#FDE68A}
+.flag-card.info{background:var(--blue-50);border-color:var(--blue-100)}
+.flag-card.ok{background:var(--green-50);border-color:#BBF7D0}
+.fc-icon{font-size:18px;flex-shrink:0}
+.fc-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px}
+.fc-desc{font-size:10px;color:var(--text2);line-height:1.4}
+
+/* Data sections */
+.data-section-title{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.data-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.data-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+.data-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;transition:all .2s}
+.data-item:hover{border-color:var(--border2);box-shadow:var(--shadow-md)}
+.data-item.flagged{border-color:#FDE68A;background:#FFFBEB}
+.data-item.critical{border-color:#FECACA;background:#FEF2F2}
+.data-item.ok{border-color:#BBF7D0;background:var(--green-50)}
+.di-label{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.di-value{font-size:15px;font-weight:700;color:var(--text)}
+.data-item.flagged .di-value{color:var(--amber-600)}
+.data-item.critical .di-value{color:var(--red-600)}
+.data-item.ok .di-value{color:var(--green-600)}
+.di-sub{font-size:9px;color:var(--text3);margin-top:3px}
+
+/* Tags row */
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tag{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600}
+.tag-red{background:#FEE2E2;color:#991B1B}
+.tag-amber{background:#FEF3C7;color:#92400E}
+.tag-blue{background:var(--blue-50);color:var(--blue-700)}
+.tag-green{background:var(--green-50);color:var(--green-700)}
+.tag-purple{background:#F3E8FF;color:#6B21A8}
+.tag-gray{background:var(--gray-100);color:var(--gray-600)}
+
+/* Loadings table */
+.data-table{width:100%;border-collapse:collapse;font-size:11px}
+.data-table th{text-align:left;padding:8px 12px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);background:var(--gray-50)}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--gray-50)}
+.data-table .total-row td{font-weight:700;background:var(--gray-50)}
+.sev-pill{padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700}
+.sev-critical{background:#FEE2E2;color:#991B1B}
+.sev-high{background:#FEF3C7;color:#92400E}
+.sev-medium{background:var(--blue-50);color:var(--blue-700)}
+.sev-low{background:var(--green-50);color:var(--green-700)}
+
+/* KV rows */
+.kv-list{display:flex;flex-direction:column;gap:0}
+.kv{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;gap:12px}
+.kv:last-child{border-bottom:none}
+.kv .k{color:var(--text2);flex-shrink:0;font-weight:500}
+.kv .v{color:var(--text);text-align:right;font-weight:600;word-break:break-word}
+
+/* Download */
+.dl-section{background:linear-gradient(135deg,#1E3A8A,#312E81);border-radius:var(--radius-lg);padding:28px;color:#fff;margin-top:24px;text-align:center}
+.dl-section h3{font-size:18px;font-weight:700;margin-bottom:6px}
+.dl-section p{font-size:12px;opacity:.7;margin-bottom:22px}
+.dl-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.dl-btn{display:flex;align-items:center;gap:12px;padding:14px 24px;border-radius:var(--radius);cursor:pointer;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);backdrop-filter:blur(4px);transition:all .2s;color:#fff;font-family:inherit}
+.dl-btn:hover{background:rgba(255,255,255,.2);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.2)}
+.dl-btn-icon{font-size:24px}
+.dl-btn-label{font-size:13px;font-weight:700;text-align:left}
+.dl-btn-sub{font-size:10px;opacity:.7;text-align:left}
+
+/* LOG */
+.log-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.log-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--gray-50)}
+.log-list{max-height:500px;overflow-y:auto}
+.log-entry{display:flex;gap:10px;padding:7px 16px;border-bottom:1px solid var(--gray-50);font-size:11px;font-family:'JetBrains Mono',monospace;animation:fadeUp .2s ease}
+.log-time{color:var(--text3);min-width:64px;flex-shrink:0}
+.log-agent{font-weight:600;min-width:90px;flex-shrink:0}
+.log-msg{color:var(--text2)}
+.log-msg.error{color:var(--red-600)}.log-msg.warning{color:var(--amber-600)}.log-msg.success{color:var(--green-600)}
+.log-empty{color:var(--text3);font-size:12px;padding:24px;text-align:center;font-family:inherit}
+
+/* ERROR */
+.error-toast{background:#FEF2F2;border:1.5px solid #FECACA;border-radius:var(--radius-sm);padding:12px 16px;margin-top:14px;display:flex;gap:10px;align-items:flex-start;animation:fadeUp .25s ease}
+.error-toast .et{color:var(--red-700);font-weight:600;font-size:12px;margin-bottom:2px}
+.error-toast .em{color:var(--red-600);font-size:11px}
+.close-x{margin-left:auto;background:transparent;border:none;cursor:pointer;font-size:14px;color:var(--text3);flex-shrink:0}
+
+/* UTILS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}}
+.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb20{margin-bottom:20px}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+.empty-state .ei{font-size:40px;margin-bottom:12px}
+.empty-state h3{font-size:16px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.empty-state p{font-size:13px}
+.hr{border:none;border-top:1px solid var(--border);margin:20px 0}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
 </style>
-
 </head>
 <body>
 <div id="app">
 
-  <!-- HEADER -->
-
-  <header>
-    <div class="logo-wrap">
-      <div class="logo-icon">⚖️</div>
-      <div>
-        <div class="logo-name">UW·MATRIX</div>
-        <div class="logo-sub">MULTI-AGENT UNDERWRITING SYSTEM</div>
-      </div>
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-mark">🧬</div>
+    <div>
+      <span class="logo-text">NovaBench UW</span>
+      <span class="logo-badge">BIONIC</span>
     </div>
-    <div style="display:flex;align-items:center;">
-      <span class="status-dot off" id="connDot"></span>
-      <span class="status-label" id="connLabel">API KEY REQUIRED</span>
-    </div>
-  </header>
-
-  <main>
-
-<!-- API KEY BANNER -->
-<div id="api-banner">
-  <h3>🔑 GEMINI API KEY CONFIGURATION</h3>
-  <p>
-    Using <strong style="color:#C084FC;">Gemini 1.5 Flash</strong> — Google's most generous free-tier model
-    (15 req/min · 1M tokens/day free).<br>
-    Get your free key at <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a> → <em>Get API Key</em>
-  </p>
-  <div class="api-row">
-    <input type="password" id="apiKeyInput" placeholder="AIza..." style="flex:1;" />
-    <button class="btn-primary btn-sm" onclick="connectAPI()">Connect</button>
   </div>
-</div>
+  <div class="header-nav">
+    <button class="nav-btn active" onclick="showPanel('pipeline')">Pipeline</button>
+    <button class="nav-btn" onclick="showPanel('results')">Results <span id="resDot" style="color:var(--green-500);display:none">●</span></button>
+    <button class="nav-btn" onclick="showPanel('logs')">Logs (<span id="logCount">0</span>)</button>
+  </div>
+  <div class="conn-pill" id="connPill" onclick="showPanel('pipeline')">
+    <span class="pip" id="connPip"></span>
+    <span id="connLabel">Not Connected</span>
+  </div>
+</header>
 
-<!-- TABS -->
-<div class="tabs">
-  <button class="tab active" onclick="switchTab('pipeline',this)">⚙️ Pipeline</button>
-  <button class="tab" onclick="switchTab('upload',this)">📄 Upload</button>
-  <button class="tab" onclick="switchTab('results',this)" id="resultsTab">📊 Results</button>
-  <button class="tab" onclick="switchTab('logs',this)" id="logsTab">🖥️ Logs (<span id="logCount">0</span>)</button>
-</div>
+<div class="app-layout">
 
-<!-- ═══════════════ PIPELINE PANEL ═══════════════ -->
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-section">NAVIGATION</div>
+  <div class="sidebar-item active" onclick="showPanel('pipeline')"><span class="si-icon">⚡</span>Pipeline Setup</div>
+  <div class="sidebar-item" onclick="showPanel('upload-panel')"><span class="si-icon">📂</span>Documents<span class="si-badge" id="docCount">0</span></div>
+  <div class="sidebar-item" onclick="showPanel('results')"><span class="si-icon">📊</span>Results</div>
+  <div class="sidebar-item" onclick="showPanel('logs')"><span class="si-icon">🖥️</span>Logs</div>
+
+  <div class="sidebar-section" style="margin-top:16px">WHY AGENTIC?</div>
+  <div style="padding:10px;background:var(--blue-50);border-radius:var(--radius-sm);font-size:10px;color:var(--blue-700);line-height:1.6;margin-bottom:8px">
+    <strong>DocuMind</strong> = Ask questions about a document.<br><br>
+    <strong>NovaBench UW</strong> = 8 specialist agents <em>reason, score, decide</em> and <em>route</em> autonomously — each with different model intelligence, UW rule engine, human checkpoints, and audit trail.
+  </div>
+
+  <div class="sidebar-section" style="margin-top:8px">AGENT PIPELINE</div>
+  <div id="sidebarAgents"></div>
+</aside>
+
+<!-- MAIN -->
+<main class="main-area" id="mainArea">
+
+<!-- ══ PIPELINE PANEL ══ -->
 <div class="panel active" id="panel-pipeline">
-  <div class="agents-grid" id="agentsGrid"></div>
 
-  <!-- Human checkpoint -->
-  <div class="checkpoint" id="checkpoint" style="display:none;">
-    <h3>👤 HUMAN-IN-THE-LOOP CHECKPOINT</h3>
+  <!-- Setup Hero -->
+  <div class="setup-hero" id="setupHero">
+    <div style="font-size:10px;font-weight:700;letter-spacing:2px;opacity:.6;margin-bottom:8px">BIONIC UNDERWRITING ENGINE</div>
+    <h1>Configure Your AI Models</h1>
+    <p>Select and connect Gemini models to power each specialist agent. Different agents use different models optimised for their task — complex decisions use Pro, fast extractions use Flash.</p>
+    <div class="setup-input-row">
+      <input class="setup-input" type="password" id="apiKeyInput" placeholder="Enter Gemini API Key (AIza...)"/>
+      <button class="btn btn-green" onclick="connectAndTest()" id="connectBtn">🔗 Connect & Test All</button>
+    </div>
+    <div id="testMsg" style="font-size:11px;opacity:.7;margin-top:10px;display:none"></div>
+  </div>
+
+  <!-- Model Selection -->
+  <div class="mb16">
+    <div class="data-section-title">SELECT AI MODELS FOR EACH AGENT GROUP</div>
+    <div class="model-grid" id="modelGrid"></div>
+  </div>
+
+  <!-- Upload quick area -->
+  <div class="mb16">
+    <div class="data-section-title">DOCUMENTS TO ANALYSE</div>
+    <div class="upload-area" id="uploadZone"
+      onclick="document.getElementById('fileInput').click()"
+      ondragover="event.preventDefault();this.classList.add('drag')"
+      ondragleave="this.classList.remove('drag')"
+      ondrop="handleDrop(event)">
+      <div class="upload-icon">📁</div>
+      <div class="upload-title">Drop files or click to upload</div>
+      <div class="upload-sub">Multiple docs · TXT processed directly · PDF/DOCX: paste text below</div>
+      <div class="doc-pills" id="docPills"></div>
+    </div>
+    <input type="file" id="fileInput" accept=".txt,.pdf,.docx" multiple style="display:none" onchange="handleFiles(event)"/>
+    <div style="margin-top:10px">
+      <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px">Document Text (paste here · separate multiple docs with ---)</label>
+      <textarea id="manualText" placeholder="Paste application form, medical report, financial statement... Separate multiple docs with ---" style="background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:12px;font-family:inherit;font-size:12px;outline:none;width:100%;height:180px;resize:vertical;line-height:1.7"></textarea>
+    </div>
+  </div>
+
+  <!-- Pipeline Tracker -->
+  <div class="pipeline-tracker" id="pipelineTracker">
+    <div class="tracker-header">
+      <div class="tracker-title">🔄 Agent Pipeline</div>
+      <div class="tracker-progress" id="trackerProgress">0 / 8 complete</div>
+    </div>
+    <div class="tracker-bar-wrap"><div class="tracker-bar-fill" id="trackerFill" style="width:0%"></div></div>
+    <div class="agents-flow" id="agentTiles"></div>
+  </div>
+
+  <!-- Checkpoint -->
+  <div class="checkpoint-banner" id="checkpoint" style="display:none">
+    <h3>👤 Human-in-the-Loop Checkpoint</h3>
     <p id="checkpointMsg">Action required before the pipeline can continue.</p>
-    <textarea id="humanNotes" placeholder="Add notes or instructions for the record..." style="height:72px;resize:vertical;margin-bottom:12px;"></textarea>
-    <div class="decision-btns" id="checkpointBtns"></div>
+    <textarea id="humanNotes" placeholder="Add notes or instructions for audit trail..." style="background:rgba(255,255,255,.7);border:1px solid #FCD34D;border-radius:var(--radius-sm);padding:10px;font-family:inherit;font-size:12px;outline:none;width:100%;height:60px;resize:vertical;margin-bottom:10px;color:var(--text)"></textarea>
+    <div class="dec-btns" id="checkpointBtns"></div>
   </div>
+  <div id="humanBanner" style="display:none;background:var(--green-50);border:1px solid #BBF7D0;border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:14px;color:var(--green-700);font-size:12px;font-weight:500;animation:fadeUp .3s ease"></div>
 
-  <!-- Human decision recorded -->
-  <div id="humanDecisionBanner" style="display:none;background:#0A1A12;border:1px solid var(--green);border-radius:8px;padding:12px 16px;margin-bottom:18px;color:var(--green);font-size:12px;animation:slideIn .3s ease;"></div>
-
-  <div class="cta-row">
-    <button class="btn-primary" id="runBtn" onclick="runPipeline()">▶ RUN UNDERWRITING PIPELINE</button>
-    <button class="btn-sec" id="viewResultsBtn" style="display:none;" onclick="switchTab('results',document.querySelectorAll('.tab')[2])">View Results →</button>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button class="btn btn-primary" id="runBtn" onclick="runPipeline()" style="font-size:14px;padding:12px 32px">▶ Run Underwriting Pipeline</button>
+    <button class="btn btn-secondary" id="viewResBtn" style="display:none" onclick="showPanel('results')">View Results →</button>
   </div>
 </div>
 
-<!-- ═══════════════ UPLOAD PANEL ═══════════════ -->
-<div class="panel" id="panel-upload">
-  <div style="max-width:780px;margin:0 auto;">
-    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()"
-         ondragover="event.preventDefault();this.classList.add('drag')"
-         ondragleave="this.classList.remove('drag')"
-         ondrop="handleDrop(event)">
+<!-- ══ UPLOAD PANEL ══ -->
+<div class="panel" id="panel-upload-panel">
+  <div class="card mb16">
+    <div class="card-title">📂 Document Management</div>
+    <div class="upload-area" id="uploadZone2"
+      onclick="document.getElementById('fileInput2').click()"
+      ondragover="event.preventDefault();this.classList.add('drag')"
+      ondragleave="this.classList.remove('drag')"
+      ondrop="handleDrop2(event)">
       <div class="upload-icon">📄</div>
-      <div class="upload-title">Drop document here or click to upload</div>
-      <div class="upload-sub">TXT files work best · PDF / DOCX: paste text below</div>
-      <div class="upload-name" id="fileName"></div>
+      <div class="upload-title">Add More Documents</div>
+      <div class="upload-sub">TXT, PDF, DOCX — multiple files supported</div>
     </div>
-    <input type="file" id="fileInput" accept=".txt,.pdf,.docx" style="display:none;" onchange="handleFile(event)" />
-
-    <p style="text-align:center;color:var(--muted);font-size:11px;margin:16px 0;">— or paste document text directly —</p>
-
-    <label>Document Text</label>
-    <textarea id="manualText" placeholder="Paste application form, medical report, or any underwriting document here..." style="height:280px;resize:vertical;line-height:1.7;"></textarea>
-
-    <div class="cta-row mt-16">
-      <button class="btn-primary" onclick="switchTab('pipeline',document.querySelectorAll('.tab')[0])">Proceed to Pipeline →</button>
-    </div>
+    <input type="file" id="fileInput2" accept=".txt,.pdf,.docx" multiple style="display:none" onchange="handleFiles(event)"/>
+    <div class="doc-pills mb12" id="docPills2" style="margin-top:12px;justify-content:flex-start"></div>
+    <label style="font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:5px;margin-top:12px">Combined Document Text</label>
+    <textarea id="manualText2" placeholder="All document text appears here..." style="background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:12px;font-family:inherit;font-size:12px;outline:none;width:100%;height:300px;resize:vertical;line-height:1.7"></textarea>
   </div>
 </div>
 
-<!-- ═══════════════ RESULTS PANEL ═══════════════ -->
+<!-- ══ RESULTS PANEL ══ -->
 <div class="panel" id="panel-results">
   <div id="resultsContent">
-    <div class="empty-state"><div class="ei">📊</div>Run the pipeline to see results here</div>
+    <div class="empty-state"><div class="ei">📊</div><h3>No results yet</h3><p>Run the pipeline to see the full underwriting assessment here.</p></div>
   </div>
 </div>
 
-<!-- ═══════════════ LOGS PANEL ═══════════════ -->
+<!-- ══ LOGS PANEL ══ -->
 <div class="panel" id="panel-logs">
-  <div class="log-container">
-    <div class="log-toolbar">
-      <span class="log-title">SYSTEM LOGS</span>
-      <button class="btn-sec btn-sm" onclick="clearLogs()">Clear</button>
+  <div class="log-wrap">
+    <div class="log-head">
+      <span style="font-size:12px;font-weight:600;color:var(--text2)">System Logs</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary btn-sm" onclick="clearLogs()">Clear</button>
+      </div>
     </div>
-    <div class="log-list" id="logList">
-      <div class="log-empty">No logs yet — run the pipeline to see activity</div>
-    </div>
+    <div class="log-list" id="logList"><div class="log-empty">No logs yet — run the pipeline</div></div>
   </div>
 </div>
 
-<!-- ERROR BOX -->
-<div class="error-box" id="errorBox" style="display:none;">
-  <span style="font-size:18px;">⚠️</span>
-  <div>
-    <div class="etitle">ERROR</div>
-    <div class="emsg" id="errorMsg"></div>
-  </div>
-  <button class="close-btn" onclick="hideError()">✕</button>
+<!-- ERROR -->
+<div class="error-toast" id="errorBox" style="display:none">
+  <span>🚨</span>
+  <div><div class="et">Error</div><div class="em" id="errorMsg"></div></div>
+  <button class="close-x" onclick="hideError()">✕</button>
 </div>
-```
 
-  </main>
-  <footer>UW·MATRIX — MULTI-AGENT UNDERWRITING SYSTEM · POWERED BY GEMINI 1.5 FLASH · AI-ASSISTED DECISIONS ONLY · HUMAN REVIEW REQUIRED FOR ALL FINAL DECISIONS</footer>
+</main>
+</div>
 </div>
 
 <script>
-// ════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 // STATE
-// ════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 let API_KEY = '';
 let running = false;
-let results = null;
+let globalResults = null;
 let logs = [];
 let completedAgents = [];
 let currentAgent = null;
-let awaitingHuman = false;
-let pipelineState = null; // intermediate state during human pause
+let pipelineState = {};
+let uploadedDocs = [];
+let modelStatus = {};
+let selectedModels = { fast: 'gemini-1.5-flash', smart: 'gemini-1.5-pro', light: 'gemini-1.5-flash-8b' };
+let activeFlag = 'all';
 
-const GEMINI_MODEL = 'gemini-2.5-flash';
-
-// ════════════════════════════════════════════════
-// UW RULE ENGINE
-// ════════════════════════════════════════════════
-const UW_RULES = {
-  life: {
-    ageThresholds: { juvenile:17, standard:60, rated:70, decline:85 },
-    bmiLimits: { low:17, highStandard:30, highRated:35, decline:40 },
-    sumAssuredLimits: { standard:500000, financial:1000000, medical:2000000 },
-    exclusions: ['HIV','terminal illness','active cancer treatment'],
-    loadings: { smoker:50, hazardousOccupation:25, adverseBMI:25, familyHistory:15 }
-  },
-  health: {
-    waitingPeriods: { preExisting:24, maternity:9, specific:12 },
-    exclusionConditions: ['pre-existing uncontrolled diabetes','recent surgery <6m','active psychiatric treatment'],
-    deductibles: { standard:500, enhanced:1000, high:2500 }
-  },
-  motor: {
-    driverAgeMin:18, driverAgeMax:75,
-    ncbDiscount: {'1':0,'2':20,'3':30,'4':40,'5':50},
-    riskFactors: ['sports car','high-performance','modified vehicle','commercial use']
-  },
-  property: {
-    constructionClasses: { A:0, B:10, C:20, D:35 },
-    occupancyTypes: ['residential','commercial','mixed','vacant'],
-    hazards: ['flood zone','earthquake zone','high crime area','industrial proximity']
-  }
-};
-
-// ════════════════════════════════════════════════
-// AGENTS
-// ════════════════════════════════════════════════
-const AGENTS = [
-  { id:'classifier', name:'Document Classifier',  icon:'🗂️', color:'#4F8EF7', desc:'Identifies document type, insurance class, and applicant profile' },
-  { id:'extractor',  name:'Value Extractor',       icon:'🔍', color:'#7C5CBF', desc:'Extracts all key fields, medical data, financial info, and risk indicators' },
-  { id:'enricher',   name:'Value Enricher',        icon:'⬆️', color:'#2AB7CA', desc:'Normalizes, validates, and enriches extracted values against reference data' },
-  { id:'evaluator',  name:'Self-Evaluator',        icon:'🔁', color:'#F5A623', desc:'Reviews prior agent outputs for consistency, flags conflicts, scores confidence' },
-  { id:'risk',       name:'Risk Calculator',       icon:'📊', color:'#E84393', desc:'Applies UW rule engine to compute risk score, loadings, and premium adjustments' },
-  { id:'decision',   name:'UW Decision Agent',     icon:'⚖️', color:'#00C48C', desc:'Makes probable underwriting decision: Accept / Rate / Refer / Decline' },
-  { id:'sp_handler', name:'SP Case Handler',       icon:'📋', color:'#FF6B35', desc:'Processes Special/SP cases — applies loadings, conditions, exclusions' },
-  { id:'referral',   name:'Non-UW Referral',       icon:'👥', color:'#6C757D', desc:'Routes complex cases to human underwriters with full context' }
+const MODELS_DEF = [
+  { key:'fast',   id:'gemini-1.5-flash',    name:'Gemini 1.5 Flash', desc:'Fast & efficient. Best for extraction, classification, routing.', tag:'flash-1.5', use:'Agents 1, 2, 7, 8', free:true },
+  { key:'smart',  id:'gemini-1.5-pro',      name:'Gemini 1.5 Pro',   desc:'Most intelligent. Best for complex reasoning & final decisions.', tag:'pro-1.5',   use:'Agents 4, 6', free:false },
+  { key:'light',  id:'gemini-1.5-flash-8b', name:'Flash 8B',          desc:'Ultra-fast lightweight model for enrichment & rule application.', tag:'flash-8b',  use:'Agents 3, 5', free:true }
 ];
 
-// ════════════════════════════════════════════════
-// INIT
-// ════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => { renderAgentCards(); });
+const AGENTS = [
+  { id:'classifier', name:'Document Classifier',  icon:'🗂️', group:'fast',  num:1, desc:'Type, class, applicant profile' },
+  { id:'extractor',  name:'Value Extractor',       icon:'🔍', group:'fast',  num:2, desc:'Medical, financial, risk fields' },
+  { id:'enricher',   name:'Value Enricher',        icon:'⬆️', group:'light', num:3, desc:'Derived metrics, validation' },
+  { id:'evaluator',  name:'Self-Evaluator',        icon:'🔁', group:'smart', num:4, desc:'Consistency & conflict detection' },
+  { id:'risk',       name:'Risk Calculator',       icon:'📊', group:'light', num:5, desc:'UW rule engine & score' },
+  { id:'decision',   name:'UW Decision Agent',     icon:'⚖️', group:'smart', num:6, desc:'Accept/Rate/Refer/Decline' },
+  { id:'sp_handler', name:'SP Case Handler',       icon:'📋', group:'fast',  num:7, desc:'SP terms & conditions' },
+  { id:'referral',   name:'Non-UW Referral',       icon:'👥', group:'fast',  num:8, desc:'Human referral package' }
+];
 
-function renderAgentCards() {
-  const grid = document.getElementById('agentsGrid');
-  grid.innerHTML = AGENTS.map((a, i) => `
-    <div class="agent-card" id="card-${a.id}" style="--ac:${a.color};--ac-g:${a.color}33;">
-      <div class="agent-bar"></div>
-      <div class="agent-top">
-        <div class="agent-icon">${a.icon}</div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-          <span class="agent-num">AGENT ${String(i+1).padStart(2,'0')}</span>
-          <span class="agent-status" id="status-${a.id}"></span>
-        </div>
+const UW_RULES = {
+  life:{
+    exclusions:['HIV','terminal illness','active cancer treatment','motor neurone disease','huntington'],
+    highRisk:['diabetes','hypertension','heart disease','stroke','cancer','kidney disease','liver disease','epilepsy','multiple sclerosis'],
+    ageAdj:{61:15,71:30,81:50},bmiAdj:{30:10,35:25,40:50},smokerAdj:20,hazardAdj:25,famHistAdj:15,
+    saLimits:{fin:500000,enh:1000000,full:2000000}
+  },
+  health:{exclusions:['organ transplant waiting','active cancer'],highRisk:['uncontrolled diabetes','recent surgery','psychiatric treatment']},
+  motor:{ageMin:18,ageMax:75,riskVehicles:['sports','performance','modified','supercar']},
+  property:{hazards:['flood zone','earthquake','subsidence','high crime']}
+};
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  renderModelGrid();
+  renderAgentTiles();
+  renderSidebarAgents();
+});
+
+function renderModelGrid() {
+  document.getElementById('modelGrid').innerHTML = MODELS_DEF.map(m => `
+    <div class="model-card ${selectedModels[m.key]===m.id?'selected':''}" id="mc-${m.key}" onclick="selectModel('${m.key}','${m.id}')">
+      <div class="model-status-dot idle" id="msd-${m.key}"></div>
+      <div class="model-name">${m.name}</div>
+      <div class="model-desc">${m.desc}</div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <span class="model-tag">${m.tag}</span>
+        ${m.free?'<span style="font-size:9px;background:#DCFCE7;color:#166534;padding:1px 6px;border-radius:4px;font-weight:600">FREE</span>':'<span style="font-size:9px;background:#F3E8FF;color:#6B21A8;padding:1px 6px;border-radius:4px;font-weight:600">PRO</span>'}
       </div>
-      <div class="agent-name" id="name-${a.id}">${a.name}</div>
-      <div class="agent-desc">${a.desc}</div>
-      <div class="agent-progress" id="prog-${a.id}"></div>
+      <div class="model-use-label">Used by: ${m.use}</div>
+      <div id="mstat-${m.key}" style="font-size:10px;color:var(--text3);margin-top:6px">Not tested</div>
     </div>`).join('');
 }
 
-function setAgentState(id, state) {
-  const card = document.getElementById('card-'+id);
-  const statusEl = document.getElementById('status-'+id);
-  if (!card) return;
-  card.className = 'agent-card' + (state==='active'?' active':state==='done'?' done':'');
-  if (state==='active') statusEl.innerHTML = '<div class="spinner"></div>';
-  else if (state==='done') statusEl.innerHTML = '<span class="check">✓</span>';
-  else statusEl.innerHTML = '';
-}
-
-// ════════════════════════════════════════════════
-// TAB SWITCHING
-// ════════════════════════════════════════════════
-function switchTab(id, btn) {
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('panel-'+id).classList.add('active');
-  if (btn) btn.classList.add('active');
-}
-
-// ════════════════════════════════════════════════
-// API KEY
-// ════════════════════════════════════════════════
-function connectAPI() {
-  const key = document.getElementById('apiKeyInput').value.trim();
-  if (!key.startsWith('AIza')) { showError('Invalid key format — must start with "AIza"'); return; }
-  API_KEY = key;
-  document.getElementById('api-banner').style.display = 'none';
-  document.getElementById('connDot').classList.remove('off');
-  document.getElementById('connLabel').textContent = 'GEMINI CONNECTED';
-  addLog('system','Gemini API connected successfully','success');
-}
-
-// ════════════════════════════════════════════════
-// FILE HANDLING
-// ════════════════════════════════════════════════
-function handleFile(e) {
-  const f = e.target.files[0];
-  if (!f) return;
-  document.getElementById('fileName').textContent = `✓ ${f.name} (${(f.size/1024).toFixed(1)} KB)`;
-  document.getElementById('uploadZone').classList.remove('drag');
-  if (f.type === 'text/plain') {
-    const reader = new FileReader();
-    reader.onload = ev => document.getElementById('manualText').value = ev.target.result;
-    reader.readAsText(f);
-  } else {
-    document.getElementById('manualText').value = `[File: ${f.name} — ${(f.size/1024).toFixed(1)}KB uploaded]\nPlease paste the document text below for AI processing (PDF/DOCX text extraction requires copy-paste in static mode).`;
+function selectModel(group, id) {
+  selectedModels[group] = id;
+  renderModelGrid();
+  if (modelStatus[id]) {
+    const dot = document.getElementById('msd-'+group);
+    if (dot) { dot.className='model-status-dot ok'; document.getElementById('mstat-'+group).textContent='✓ Connected'; }
   }
 }
-function handleDrop(e) {
-  e.preventDefault();
-  document.getElementById('uploadZone').classList.remove('drag');
-  const f = e.dataTransfer.files[0];
-  if (f) handleFile({ target: { files: [f] } });
+
+function renderAgentTiles() {
+  document.getElementById('agentTiles').innerHTML = AGENTS.map((a,i) => `
+    <div class="agent-tile" id="tile-${a.id}">
+      <div class="at-header">
+        <div class="at-icon">${a.icon}</div>
+        <div style="text-align:right">
+          <div class="at-num">AGENT ${String(a.num).padStart(2,'0')}</div>
+          <div class="at-model-badge" id="atm-${a.id}">${a.group}</div>
+        </div>
+      </div>
+      <div class="at-name" id="atname-${a.id}">${a.name}</div>
+      <div class="at-desc">${a.desc}</div>
+      <div class="at-status" id="atprog-${a.id}"></div>
+      <div id="atstat-${a.id}" style="margin-top:6px;min-height:16px;font-size:10px"></div>
+    </div>`).join('');
 }
 
-// ════════════════════════════════════════════════
+function renderSidebarAgents() {
+  document.getElementById('sidebarAgents').innerHTML = AGENTS.map(a => `
+    <div class="agent-mini" id="sam-${a.id}">
+      <span class="am-dot" id="samdot-${a.id}"></span>
+      <span class="am-name">${a.icon} ${a.name}</span>
+      <span class="am-model">${a.group}</span>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// PANEL / TAB SWITCHING
+// ════════════════════════════════════════════════════════
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  const panel = document.getElementById('panel-'+id);
+  if (panel) panel.classList.add('active');
+  // Match nav
+  document.querySelectorAll('.nav-btn').forEach(b => { if (b.textContent.toLowerCase().includes(id.replace('-panel',''))) b.classList.add('active'); });
+}
+
+// ════════════════════════════════════════════════════════
+// API & MODEL TESTING
+// ════════════════════════════════════════════════════════
+async function connectAndTest() {
+  const key = document.getElementById('apiKeyInput').value.trim();
+  if (!key.startsWith('AIza')) { showError('Invalid key — must start with "AIza"'); return; }
+  API_KEY = key;
+  const btn = document.getElementById('connectBtn');
+  btn.disabled = true; btn.textContent = '⏳ Testing...';
+  const msg = document.getElementById('testMsg');
+  msg.style.display = 'block'; msg.textContent = 'Testing all 3 models...';
+  let okCount = 0;
+  for (const m of MODELS_DEF) {
+    const dot = document.getElementById('msd-'+m.key);
+    const stat = document.getElementById('mstat-'+m.key);
+    const card = document.getElementById('mc-'+m.key);
+    if (dot) dot.className = 'model-status-dot testing';
+    try {
+      await rawCall(m.id, 'Reply with the single word: OK', 10);
+      modelStatus[m.id] = true;
+      if (dot) dot.className = 'model-status-dot ok';
+      if (stat) stat.textContent = '✓ Connected & Ready';
+      if (card) card.classList.add('connected');
+      addLog('system', `${m.name} ✓ ready`, 'success'); okCount++;
+    } catch(e) {
+      modelStatus[m.id] = false;
+      if (dot) dot.className = 'model-status-dot err';
+      if (stat) stat.textContent = `✗ ${e.message.substring(0,40)}`;
+      if (card) card.classList.add('err');
+      addLog('system', `${m.name} ✗ ${e.message}`, 'error');
+    }
+  }
+  const pill = document.getElementById('connPill');
+  const pip = document.getElementById('connPip');
+  if (okCount > 0) {
+    pill.classList.add('ok'); pip.className = 'pip ok';
+    document.getElementById('connLabel').textContent = `${okCount}/3 Models Ready`;
+    document.getElementById('setupHero').style.background = 'linear-gradient(135deg,#064E3B,#065F46)';
+    msg.textContent = `✓ ${okCount} of 3 models connected. Ready to run pipeline.`;
+    btn.textContent = '✓ Connected';
+  } else {
+    showError('No models could connect. Check your API key.');
+    btn.textContent = '🔗 Connect & Test All';
+  }
+  btn.disabled = false;
+  updateAgentModelBadges();
+}
+
+function updateAgentModelBadges() {
+  AGENTS.forEach(a => {
+    const el = document.getElementById('atm-'+a.id);
+    if (el) { const m = getBestModel(a.group); el.textContent = m.replace('gemini-','').replace('-latest',''); }
+    const sam = document.getElementById('sam-'+a.id);
+    if (sam) sam.querySelector('.am-model').textContent = a.group;
+  });
+}
+
+function getBestModel(group) {
+  const pref = selectedModels[group];
+  if (modelStatus[pref]) return pref;
+  for (const m of MODELS_DEF) { if (modelStatus[m.id]) return m.id; }
+  return 'gemini-1.5-flash';
+}
+
+// ════════════════════════════════════════════════════════
+// FILES
+// ════════════════════════════════════════════════════════
+function handleFiles(e) { [...e.target.files].forEach(processFile); }
+function handleDrop(e) { e.preventDefault(); document.getElementById('uploadZone').classList.remove('drag'); [...e.dataTransfer.files].forEach(processFile); }
+function handleDrop2(e) { e.preventDefault(); document.getElementById('uploadZone2').classList.remove('drag'); [...e.dataTransfer.files].forEach(processFile); }
+function processFile(f) {
+  if (f.type==='text/plain') { const r=new FileReader(); r.onload=ev=>addDoc(f.name,ev.target.result); r.readAsText(f); }
+  else addDoc(f.name, `[File uploaded: ${f.name}]\n`);
+}
+function addDoc(name, text) {
+  uploadedDocs.push({name,text});
+  const ta = document.getElementById('manualText');
+  if (ta.value.trim()) ta.value += '\n\n---\n\n';
+  ta.value += `=== ${name} ===\n${text}`;
+  const ta2 = document.getElementById('manualText2');
+  if (ta2.value.trim()) ta2.value += '\n\n---\n\n';
+  ta2.value += `=== ${name} ===\n${text}`;
+  renderDocPills(); renderDocPills2();
+  document.getElementById('docCount').textContent = uploadedDocs.length;
+}
+function removeDoc(i) { uploadedDocs.splice(i,1); renderDocPills(); renderDocPills2(); document.getElementById('docCount').textContent=uploadedDocs.length; }
+function renderDocPills() { document.getElementById('docPills').innerHTML = uploadedDocs.map((d,i)=>`<div class="doc-pill">📄 ${esc(d.name)}<span class="rm" onclick="removeDoc(${i})">✕</span></div>`).join(''); }
+function renderDocPills2() { document.getElementById('docPills2').innerHTML = uploadedDocs.map((d,i)=>`<div class="doc-pill">📄 ${esc(d.name)}<span class="rm" onclick="removeDoc(${i})">✕</span></div>`).join(''); }
+
+// ════════════════════════════════════════════════════════
 // LOGGING
-// ════════════════════════════════════════════════
-function addLog(agentId, message, type='info') {
+// ════════════════════════════════════════════════════════
+function addLog(agentId, msg, type='info') {
   const t = new Date().toLocaleTimeString();
-  logs.push({ agentId, message, type, t });
+  logs.push({agentId,msg,type,t});
   document.getElementById('logCount').textContent = logs.length;
   const list = document.getElementById('logList');
   if (list.querySelector('.log-empty')) list.innerHTML = '';
   const agent = AGENTS.find(a=>a.id===agentId);
-  const col = type==='error'?'#E84393':type==='warning'?'#F5A623':type==='success'?'#00C48C':(agent?.color||'#718096');
+  const colors = {error:'var(--red-600)',warning:'var(--amber-600)',success:'var(--green-600)',info:'var(--blue-500)'};
   const div = document.createElement('div');
   div.className = 'log-entry';
-  div.innerHTML = `<span class="log-time">${t}</span><span class="log-agent" style="color:${col}">[${agentId.toUpperCase()}]</span><span class="log-msg ${type}">${message}</span>`;
-  list.appendChild(div);
-  list.scrollTop = list.scrollHeight;
-  document.getElementById('logsTab').querySelector('span').textContent = logs.length;
+  div.innerHTML = `<span class="log-time">${t}</span><span class="log-agent" style="color:${colors[type]||'var(--text3)'}">[${agentId.toUpperCase().substring(0,9)}]</span><span class="log-msg ${type}">${esc(msg)}</span>`;
+  list.appendChild(div); list.scrollTop = list.scrollHeight;
 }
+function clearLogs() { logs=[]; document.getElementById('logList').innerHTML='<div class="log-empty">Cleared</div>'; document.getElementById('logCount').textContent='0'; }
+function showError(msg) { document.getElementById('errorMsg').textContent=msg; document.getElementById('errorBox').style.display='flex'; }
+function hideError() { document.getElementById('errorBox').style.display='none'; }
 
-function clearLogs() { logs=[]; document.getElementById('logList').innerHTML='<div class="log-empty">Logs cleared</div>'; document.getElementById('logCount').textContent='0'; }
-
-// ════════════════════════════════════════════════
-// ERROR
-// ════════════════════════════════════════════════
-function showError(msg) {
-  document.getElementById('errorMsg').textContent = msg;
-  document.getElementById('errorBox').style.display = 'flex';
-}
-function hideError() { document.getElementById('errorBox').style.display = 'none'; }
-
-// ════════════════════════════════════════════════
-// GEMINI CALL
-// ════════════════════════════════════════════════
-async function callGemini(prompt) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
-  const body = { contents:[{parts:[{text:prompt}]}], generationConfig:{temperature:0.2,maxOutputTokens:2048} };
-  const res = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
-  if (!res.ok) {
-    const err = await res.json().catch(()=>({}));
-    throw new Error(`Gemini ${res.status}: ${err?.error?.message || res.statusText}`);
-  }
+// ════════════════════════════════════════════════════════
+// GEMINI — ROBUST JSON CALL
+// ════════════════════════════════════════════════════════
+async function rawCall(modelId, prompt, maxTokens=2048) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:generateContent?key=${API_KEY}`;
+  const res = await fetch(url, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ contents:[{parts:[{text:prompt}]}], generationConfig:{temperature:0.1,maxOutputTokens:maxTokens} })
+  });
+  if (!res.ok) { const e=await res.json().catch(()=>({})); throw new Error(`${res.status}: ${e?.error?.message||res.statusText}`); }
   const data = await res.json();
   return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
-async function callGeminiJSON(prompt) {
-  const raw = await callGemini(prompt);
-  const clean = raw.replace(/```json|```/g,'').trim();
-  return JSON.parse(clean);
-}
-
-// ════════════════════════════════════════════════
-// AGENTS
-// ════════════════════════════════════════════════
-async function runClassifier(docText) {
-  addLog('classifier','Analyzing document type and insurance class...');
-  const json = await callGeminiJSON(`You are an expert insurance document classifier.
-Analyze this document and return ONLY a valid JSON object (no markdown, no explanation):
-{
-  "documentType": "Application Form | Medical Report | Financial Statement | Policy Document | Claim Form | Other",
-  "insuranceClass": "Life | Health | Motor | Property | Liability | Marine | Other",
-  "productType": "Term Life | Whole Life | Endowment | Group Life | Individual Health | Motor Comprehensive | Home Buildings | Other",
-  "applicantName": "string or null",
-  "applicantAge": "number or null",
-  "sumAssured": "number or null",
-  "currency": "string",
-  "confidence": "number 0-100",
-  "documentQuality": "Good | Fair | Poor",
-  "keyFlags": ["array of notable flags"]
-}
-DOCUMENT:
-${docText.substring(0,3000)}`);
-  addLog('classifier',`Classified: ${json.insuranceClass} — ${json.documentType} (${json.confidence}% confidence)`);
-  return json;
-}
-
-async function runExtractor(docText, classification) {
-  addLog('extractor','Extracting all key values and risk indicators...');
-  const json = await callGeminiJSON(`You are an expert insurance data extractor for ${classification.insuranceClass} insurance.
-Extract ALL relevant underwriting fields. Return ONLY valid JSON:
-{
-  "personalDetails": { "name":"string","dob":"string","age":"number","gender":"string","occupation":"string","smokerStatus":"Smoker|Non-Smoker|Ex-Smoker|Unknown","nationality":"string","residency":"string" },
-  "financialDetails": { "sumAssured":"number","currency":"string","premium":"number or null","annualIncome":"number or null","existingCover":"number or null" },
-  "medicalDetails": { "height_cm":"number or null","weight_kg":"number or null","bmi":"number or null","bloodPressure":"string or null","existingConditions":["array"],"medications":["array"],"familyHistory":["array"],"recentSurgeries":["array"] },
-  "riskFactors": { "hazardousActivities":["array"],"travelRisk":"string or null","drivingHistory":"string or null","criminalHistory":"string or null" },
-  "policyDetails": { "term":"number or null","beneficiaries":["array"],"riders":["array"] },
-  "missingFields": ["fields that should be present but are missing"],
-  "rawFlags": ["any unusual items found"]
-}
-DOCUMENT:
-${docText.substring(0,4000)}`);
-  addLog('extractor',`Extracted ${Object.keys(json.medicalDetails||{}).length} medical fields; ${(json.missingFields||[]).length} missing fields flagged`);
-  return json;
-}
-
-async function runEnricher(extracted, classification) {
-  addLog('enricher','Enriching and validating extracted values...');
-  const enriched = JSON.parse(JSON.stringify(extracted));
-  if (!enriched.medicalDetails.bmi && enriched.medicalDetails.height_cm && enriched.medicalDetails.weight_kg) {
-    const h = enriched.medicalDetails.height_cm / 100;
-    enriched.medicalDetails.bmi = parseFloat((enriched.medicalDetails.weight_kg/(h*h)).toFixed(1));
-    addLog('enricher',`Computed BMI: ${enriched.medicalDetails.bmi}`);
+async function jsonCall(agentId, prompt, retries=3) {
+  const model = getBestModel(AGENTS.find(a=>a.id===agentId)?.group||'fast');
+  for (let attempt=0; attempt<=retries; attempt++) {
+    try {
+      const p = attempt===0 ? `You MUST respond with ONLY a valid raw JSON object. NO markdown, NO code blocks, NO text before or after the JSON. Start your response with { and end with }.\n\n${prompt}`
+                            : `CRITICAL: Output ONLY the JSON object starting with {. No other text.\n\n${prompt}`;
+      const raw = await rawCall(model, p, 2048);
+      const j = tryParseJSON(raw);
+      if (j) return j;
+      if (attempt===retries) {
+        // Return safe defaults rather than crashing
+        addLog(agentId,'JSON parse failed — using safe defaults','warning');
+        return {};
+      }
+      await sleep(1000 * (attempt+1));
+    } catch(e) {
+      if (attempt===retries) throw e;
+      await sleep(1200);
+    }
   }
-  const notes = [];
-  const age = enriched.personalDetails?.age || 0;
-  if (age > 70) notes.push('Age >70: enhanced medical evidence required');
-  if ((enriched.medicalDetails?.bmi||0) >= 35) notes.push('BMI ≥35: medical questionnaire required');
-  if ((enriched.financialDetails?.sumAssured||0) > 1000000) notes.push('Sum assured >1M: financial underwriting required');
-  if ((enriched.personalDetails?.smokerStatus||'').includes('Smoker')) notes.push('Smoker: tobacco loading applicable');
-  enriched.enrichmentNotes = notes;
-  enriched.enrichmentTimestamp = new Date().toISOString();
-  addLog('enricher',`Enrichment complete. ${notes.length} validation notes raised.`);
-  return enriched;
 }
 
-async function runEvaluator(classification, extracted) {
-  addLog('evaluator','Running self-evaluation and consistency checks...');
-  const json = await callGeminiJSON(`You are a senior underwriting quality controller.
-CLASSIFICATION: ${JSON.stringify(classification)}
-EXTRACTED DATA: ${JSON.stringify(extracted)}
-Return ONLY valid JSON:
-{
-  "consistencyScore":"number 0-100",
-  "conflicts":["list any data conflicts or inconsistencies"],
-  "dataGaps":["critical missing information"],
-  "confidenceLevel":"High | Medium | Low",
-  "recommendAdditionalEvidence":["list additional evidence needed"],
-  "evaluatorNotes":"string summary",
-  "proceedToRisk":"boolean — can we proceed to risk calculation?"
-}`);
-  addLog('evaluator',`Consistency: ${json.consistencyScore}%, Confidence: ${json.confidenceLevel}. Proceed: ${json.proceedToRisk}`);
-  return json;
+function tryParseJSON(text) {
+  if (!text) return null;
+  // 1. Direct
+  try { return JSON.parse(text.trim()); } catch{}
+  // 2. Strip ```json ... ```
+  const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fence) { try { return JSON.parse(fence[1].trim()); } catch{} }
+  // 3. First { ... }
+  const s=text.indexOf('{'), e=text.lastIndexOf('}');
+  if (s!==-1&&e>s) { try { return JSON.parse(text.substring(s,e+1)); } catch{} }
+  // 4. Fix common issues — trailing commas
+  try {
+    const fixed = text.substring(s,e+1).replace(/,\s*([}\]])/g,'$1').replace(/([^"\\])'([^']*?)'/g,'$1"$2"');
+    return JSON.parse(fixed);
+  } catch{}
+  return null;
 }
 
-function runRiskCalculator(classification, extracted, evaluation) {
-  addLog('risk','Calculating risk score using UW rule engine...');
-  let score = 100;
-  const loadings = [], exclusions = [];
-  const rules = UW_RULES[(classification.insuranceClass||'').toLowerCase()] || UW_RULES.life;
-  const age = extracted.personalDetails?.age || 0;
-  const bmi = extracted.medicalDetails?.bmi || 0;
-  const smoker = (extracted.personalDetails?.smokerStatus||'').includes('Smoker');
-  const conditions = extracted.medicalDetails?.existingConditions || [];
-  const sa = extracted.financialDetails?.sumAssured || 0;
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
 
-  if (age > 70) { score-=30; loadings.push({reason:'Age >70',adjustment:-30}); }
-  else if (age > 60) { score-=15; loadings.push({reason:'Age >60',adjustment:-15}); }
-  if (bmi >= 35) { score-=25; loadings.push({reason:'BMI ≥35',adjustment:-25}); }
-  else if (bmi >= 30) { score-=10; loadings.push({reason:'BMI ≥30',adjustment:-10}); }
-  else if (bmi > 0 && bmi < 17) { score-=15; loadings.push({reason:'BMI <17 (underweight)',adjustment:-15}); }
-  if (smoker) { score-=20; loadings.push({reason:'Smoker status',adjustment:-20}); }
-  conditions.forEach(c => {
-    if ((rules.exclusions||[]).some(e => c.toLowerCase().includes(e.toLowerCase()))) {
-      exclusions.push(c); score-=40;
-    } else { score-=10; loadings.push({reason:`Existing condition: ${c}`,adjustment:-10}); }
+// ════════════════════════════════════════════════════════
+// AGENT FUNCTIONS
+// ════════════════════════════════════════════════════════
+async function agentClassify(docText) {
+  addLog('classifier','Analysing document type and insurance class...');
+  const result = await jsonCall('classifier', `Classify this insurance document. Return a JSON object with ONLY these exact keys:
+{"documentType":"Application Form","insuranceClass":"Life","productType":"Term Life","applicantName":null,"applicantAge":null,"sumAssured":null,"currency":"USD","confidence":80,"documentQuality":"Good","keyFlags":[],"documentSummary":"one sentence summary"}
+
+DOCUMENT:\n${docText.substring(0,3000)}`);
+  const safe = {documentType:'Unknown',insuranceClass:'Life',productType:'Unknown',applicantName:null,applicantAge:null,sumAssured:null,currency:'USD',confidence:50,documentQuality:'Fair',keyFlags:[],documentSummary:'Document analysed', ...result};
+  addLog('classifier',`Classified: ${safe.insuranceClass} — ${safe.documentType} (${safe.confidence}% confidence)`);
+  return safe;
+}
+
+async function agentExtract(docText, cls) {
+  addLog('extractor','Extracting all medical, financial and risk values...');
+  const result = await jsonCall('extractor', `Extract ALL underwriting fields from this ${cls.insuranceClass||'Life'} insurance document. Return ONLY this JSON structure:
+{"personalDetails":{"name":null,"dob":null,"age":null,"gender":null,"occupation":null,"smokerStatus":"Unknown","nationality":null,"residency":null},"financialDetails":{"sumAssured":null,"currency":"USD","premium":null,"annualIncome":null,"existingCover":null,"netWorth":null},"medicalDetails":{"height_cm":null,"weight_kg":null,"bmi":null,"bloodPressure":null,"cholesterol":null,"existingConditions":[],"medications":[],"familyHistory":[],"recentSurgeries":[],"lastMedicalExam":null},"riskFactors":{"hazardousActivities":[],"travelRisk":null,"drivingHistory":null,"criminalHistory":null},"policyDetails":{"term":null,"beneficiaries":[],"riders":[],"existingPolicies":[]},"missingFields":[],"rawFlags":[],"dataQuality":"Good"}
+
+DOCUMENT:\n${docText.substring(0,4000)}`);
+  const safe = {personalDetails:{},financialDetails:{},medicalDetails:{existingConditions:[],medications:[],familyHistory:[],recentSurgeries:[]},riskFactors:{hazardousActivities:[]},policyDetails:{},missingFields:[],rawFlags:[],dataQuality:'Fair',...result};
+  addLog('extractor',`Extracted ${Object.keys(safe.medicalDetails).length} medical fields, ${safe.missingFields.length} gaps`);
+  return safe;
+}
+
+function agentEnrich(extracted, cls) {
+  addLog('enricher','Computing derived values and validation notes...');
+  const e = JSON.parse(JSON.stringify(extracted));
+  if (!e.medicalDetails) e.medicalDetails = {};
+  if (!e.medicalDetails.bmi && e.medicalDetails.height_cm && e.medicalDetails.weight_kg) {
+    const h=e.medicalDetails.height_cm/100;
+    e.medicalDetails.bmi = +((e.medicalDetails.weight_kg/(h*h)).toFixed(1));
+    addLog('enricher',`Derived BMI: ${e.medicalDetails.bmi}`);
+  }
+  const notes=[];
+  const age=e.personalDetails?.age||0;
+  const bmi=e.medicalDetails?.bmi||0;
+  const smoker=(e.personalDetails?.smokerStatus||'').toLowerCase();
+  const isSmoker=smoker.includes('smoker')&&!smoker.includes('non-smoker')&&!smoker.includes('ex');
+  const sa=e.financialDetails?.sumAssured||0;
+  if(age>70) notes.push('Age >70: Enhanced medical evidence required');
+  if(bmi>=35) notes.push('BMI ≥35: Medical questionnaire required');
+  if(sa>1000000) notes.push('SA >1M: Financial underwriting questionnaire required');
+  if(isSmoker) notes.push('Current smoker: Tobacco loading applicable');
+  if((e.medicalDetails?.existingConditions||[]).length) notes.push(`${e.medicalDetails.existingConditions.length} medical condition(s) declared`);
+  e.enrichmentNotes=notes; e.enrichmentTimestamp=new Date().toISOString();
+  addLog('enricher',`Enrichment done. ${notes.length} validation notes.`);
+  return e;
+}
+
+async function agentEvaluate(cls, extracted) {
+  addLog('evaluator','Running self-evaluation & consistency checks...');
+  const result = await jsonCall('evaluator', `You are a senior UW quality controller. Review this data. Return ONLY this JSON:
+{"consistencyScore":85,"conflicts":[],"dataGaps":[],"confidenceLevel":"High","recommendAdditionalEvidence":[],"evaluatorNotes":"summary of findings","proceedToRisk":true,"qualityGrade":"B"}
+
+CLASSIFICATION:${JSON.stringify(cls)}
+EXTRACTED:${JSON.stringify(extracted)}`);
+  const safe = {consistencyScore:70,conflicts:[],dataGaps:[],confidenceLevel:'Medium',recommendAdditionalEvidence:[],evaluatorNotes:'Evaluation complete',proceedToRisk:true,qualityGrade:'B',...result};
+  if (typeof safe.proceedToRisk !== 'boolean') safe.proceedToRisk = safe.consistencyScore >= 50;
+  addLog('evaluator',`Consistency: ${safe.consistencyScore}%, Grade: ${safe.qualityGrade}, Proceed: ${safe.proceedToRisk}`);
+  return safe;
+}
+
+function agentRisk(cls, extracted, evaluation) {
+  addLog('risk','Applying UW rule engine...');
+  const rules = UW_RULES[(cls.insuranceClass||'').toLowerCase()] || UW_RULES.life;
+  let score=100;
+  const loadings=[], exclusions=[], flags=[];
+  const pd=extracted.personalDetails||{};
+  const md=extracted.medicalDetails||{};
+  const fd=extracted.financialDetails||{};
+  const rf=extracted.riskFactors||{};
+  const age=pd.age||0;
+  const bmi=md.bmi||0;
+  const smoker=(pd.smokerStatus||'').toLowerCase();
+  const isSmoker=smoker.includes('smoker')&&!smoker.includes('non-smoker')&&!smoker.includes('ex');
+  const conditions=md.existingConditions||[];
+  const famHx=md.familyHistory||[];
+  const hazards=rf.hazardousActivities||[];
+  const sa=fd.sumAssured||0;
+
+  // Age
+  if(age>80){score-=50;loadings.push({reason:'Age >80',adj:-50,sev:'critical'});flags.push({type:'critical',title:'Extreme Age Risk',desc:`Age ${age} — very high mortality risk`})}
+  else if(age>70){score-=30;loadings.push({reason:'Age 71-80',adj:-30,sev:'high'});flags.push({type:'warning',title:'Advanced Age',desc:`Age ${age} — enhanced evidence required`})}
+  else if(age>60){score-=15;loadings.push({reason:'Age 61-70',adj:-15,sev:'medium'});flags.push({type:'info',title:'Mature Age',desc:`Age ${age} — standard age loading`})}
+  else if(age>0&&age<=18){score-=10;loadings.push({reason:'Juvenile/young applicant',adj:-10,sev:'low'})}
+  else if(age===0){flags.push({type:'info',title:'Age Not Found',desc:'Age could not be extracted from document'})}
+
+  // BMI
+  if(bmi>=40){score-=50;loadings.push({reason:'BMI ≥40 — Morbid Obesity',adj:-50,sev:'critical'});flags.push({type:'critical',title:'Morbid Obesity',desc:`BMI ${bmi} — significantly elevated mortality risk`})}
+  else if(bmi>=35){score-=25;loadings.push({reason:'BMI 35-39.9 — Severe Obesity',adj:-25,sev:'high'});flags.push({type:'warning',title:'Severe Obesity',desc:`BMI ${bmi} — medical questionnaire required`})}
+  else if(bmi>=30){score-=10;loadings.push({reason:'BMI 30-34.9 — Obese',adj:-10,sev:'medium'});flags.push({type:'warning',title:'Obese BMI',desc:`BMI ${bmi} — loading applies`})}
+  else if(bmi>0&&bmi<17){score-=15;loadings.push({reason:'BMI <17 — Underweight',adj:-15,sev:'high'});flags.push({type:'warning',title:'Underweight',desc:`BMI ${bmi} — nutritional/health risk`})}
+  else if(bmi>=18.5&&bmi<25){flags.push({type:'ok',title:'Healthy BMI',desc:`BMI ${bmi} — within normal range ✓`})}
+  else if(bmi>=25&&bmi<30){flags.push({type:'info',title:'Overweight BMI',desc:`BMI ${bmi} — borderline, monitor`})}
+
+  // Smoker
+  if(isSmoker){score-=20;loadings.push({reason:'Current smoker',adj:-20,sev:'high'});flags.push({type:'warning',title:'Smoker',desc:'Tobacco loading +20% applicable'})}
+  else if(smoker.includes('ex')){flags.push({type:'info',title:'Ex-Smoker',desc:'Reduced loading may apply — clarify cessation date'})}
+  else if(pd.smokerStatus&&smoker.includes('non')){flags.push({type:'ok',title:'Non-Smoker',desc:'No tobacco loading applicable ✓'})}
+
+  // Medical conditions
+  conditions.forEach(c=>{
+    const isExcl=(rules.exclusions||[]).some(e=>c.toLowerCase().includes(e.toLowerCase()));
+    const isHR=(rules.highRisk||[]).some(e=>c.toLowerCase().includes(e.toLowerCase()));
+    if(isExcl){score-=40;exclusions.push(c);flags.push({type:'critical',title:'Exclusion Condition',desc:`${c} — possible decline or exclusion`})}
+    else if(isHR){score-=15;loadings.push({reason:`High-risk condition: ${c}`,adj:-15,sev:'high'});flags.push({type:'warning',title:'High-Risk Condition',desc:c})}
+    else{score-=8;loadings.push({reason:`Medical condition: ${c}`,adj:-8,sev:'medium'});flags.push({type:'info',title:'Declared Condition',desc:c})}
   });
-  if (sa > 2000000) { score-=10; loadings.push({reason:'Very high sum assured',adjustment:-10}); }
-  const finalScore = Math.max(0, Math.min(100, score));
-  const cat = finalScore>=80?'Standard':finalScore>=60?'Substandard':finalScore>=40?'High Risk':'Declined';
-  addLog('risk',`Risk score: ${finalScore}/100 → ${cat}. ${loadings.length} loadings applied.`);
-  return { baseScore:100, adjustedScore:finalScore, riskCategory:cat, loadings, exclusions, rulesApplied:Object.keys(rules).length };
+
+  // Family history
+  if(famHx.length){score-=10;loadings.push({reason:`Family history: ${famHx.join(', ')}`,adj:-10,sev:'low'});flags.push({type:'info',title:'Family History',desc:famHx.join(', ')})}
+
+  // Hazardous activities
+  if(hazards.length){score-=15;loadings.push({reason:`Hazardous activities`,adj:-15,sev:'high'});flags.push({type:'warning',title:'Hazardous Activities',desc:hazards.join(', ')})}
+
+  // SA
+  if(sa>2000000){score-=10;flags.push({type:'warning',title:'Very High Sum Assured',desc:`${fd.currency||''} ${sa.toLocaleString()} — full financial UW required`})}
+  else if(sa>1000000){flags.push({type:'info',title:'High Sum Assured',desc:`${fd.currency||''} ${sa.toLocaleString()} — financial questionnaire required`})}
+  else if(sa>0){flags.push({type:'ok',title:'Standard Sum Assured',desc:`${fd.currency||''} ${sa.toLocaleString()} — within standard limits`})}
+
+  const finalScore=Math.max(0,Math.min(100,Math.round(score)));
+  const cat=finalScore>=85?'Standard':finalScore>=70?'Standard Plus':finalScore>=55?'Substandard':finalScore>=35?'High Risk':'Declined';
+  const catColor=finalScore>=85?'var(--green-600)':finalScore>=70?'var(--cyan-500)':finalScore>=55?'var(--amber-600)':finalScore>=35?'var(--red-500)':'#7F1D1D';
+  addLog('risk',`Score: ${finalScore}/100 → ${cat} | ${loadings.length} loadings | ${exclusions.length} exclusions | ${flags.length} flags`);
+  return {baseScore:100,adjustedScore:finalScore,riskCategory:cat,categoryColor:catColor,loadings,exclusions,flags,rulesApplied:Object.keys(rules).length};
 }
 
-async function runDecisionAgent(classification, extracted, evaluation, riskCalc) {
-  addLog('decision','Making probable underwriting decision...');
-  const json = await callGeminiJSON(`You are a Chief Underwriter making a binding recommendation.
-RISK SCORE: ${riskCalc.adjustedScore}/100
-RISK CATEGORY: ${riskCalc.riskCategory}
-LOADINGS: ${JSON.stringify(riskCalc.loadings)}
-EXCLUSIONS: ${JSON.stringify(riskCalc.exclusions)}
-CONFIDENCE: ${evaluation.confidenceLevel}
-CONFLICTS: ${JSON.stringify(evaluation.conflicts)}
-APPLICANT AGE: ${extracted.personalDetails?.age}
-SUM ASSURED: ${extracted.financialDetails?.sumAssured} ${extracted.financialDetails?.currency}
-MEDICAL CONDITIONS: ${JSON.stringify(extracted.medicalDetails?.existingConditions)}
-Return ONLY valid JSON:
-{
-  "decision":"Accept | Accept with Conditions | Rated | Refer to Underwriter | Decline",
-  "decisionReason":"string — clear professional rationale",
-  "conditions":["list of conditions if applicable"],
-  "premiumLoading":"number — percentage loading, 0 if standard",
-  "exclusions":["list of exclusions to apply"],
-  "specialTerms":"string or null",
-  "reviewRequired":"boolean",
-  "decisionConfidence":"number 0-100",
-  "uwNarrative":"2-3 sentence professional underwriting narrative"
-}`);
-  addLog('decision',`Decision: ${json.decision} (${json.decisionConfidence}% confidence). Loading: +${json.premiumLoading}%`);
-  return json;
+async function agentDecide(cls, extracted, evaluation, riskCalc) {
+  addLog('decision','Chief UW Agent making binding recommendation...');
+  const result = await jsonCall('decision', `You are a Chief Underwriter. Based on this risk data, make an underwriting decision. Return ONLY this JSON:
+{"decision":"Accept","decisionReason":"detailed professional rationale","conditions":[],"premiumLoading":0,"exclusions":[],"specialTerms":null,"reviewRequired":false,"decisionConfidence":85,"uwNarrative":"2-3 professional sentences","nextReviewDate":"12 months","recommendedAction":"brief action item"}
+
+RISK_SCORE:${riskCalc.adjustedScore} CATEGORY:${riskCalc.riskCategory} LOADINGS:${JSON.stringify(riskCalc.loadings)} EXCLUSIONS:${JSON.stringify(riskCalc.exclusions)} CONFIDENCE:${evaluation.confidenceLevel} AGE:${extracted.personalDetails?.age} SA:${extracted.financialDetails?.sumAssured} CONDITIONS:${JSON.stringify(extracted.medicalDetails?.existingConditions)} SMOKER:${extracted.personalDetails?.smokerStatus}`);
+  const safe={decision:'Refer to Underwriter',decisionReason:'Insufficient data for automated decision',conditions:[],premiumLoading:0,exclusions:[],specialTerms:null,reviewRequired:true,decisionConfidence:50,uwNarrative:'Case requires further review.',nextReviewDate:'6 months',recommendedAction:'Obtain additional medical evidence',...result};
+  addLog('decision',`Decision: ${safe.decision} (${safe.decisionConfidence}% confidence) | Loading: +${safe.premiumLoading}%`);
+  return safe;
 }
 
-function runSPHandler(decision, extracted, riskCalc) {
-  if (!['Accept with Conditions','Rated'].includes(decision.decision)) {
-    addLog('sp_handler','Case not SP — skipping SP handler.'); return null;
-  }
-  addLog('sp_handler','Processing Special/Standard Plus case terms...');
-  const sp = {
-    caseType: decision.decision==='Rated'?'Rated':'SP — Accept with Conditions',
-    premiumAdjustment: `+${decision.premiumLoading}% on standard rate`,
-    conditionsApplied: decision.conditions||[],
-    exclusionsApplied: decision.exclusions||[],
-    reviewAt: '12 months',
-    spNarrative: decision.uwNarrative,
-    loadingBreakdown: riskCalc.loadings,
-    generatedAt: new Date().toISOString()
-  };
-  addLog('sp_handler',`SP case processed. +${decision.premiumLoading}% loading. ${(decision.conditions||[]).length} conditions applied.`);
+function agentSP(decision, extracted, riskCalc) {
+  if(!['Accept with Conditions','Rated'].includes(decision.decision)){addLog('sp_handler','Not SP — skipped.');return null}
+  addLog('sp_handler','Processing SP/Rated case terms...');
+  const sp={caseType:decision.decision==='Rated'?'Rated Case':'SP — Accept with Conditions',premiumAdjustment:`+${decision.premiumLoading}% on standard rate`,conditionsApplied:decision.conditions||[],exclusionsApplied:decision.exclusions||[],reviewAt:decision.nextReviewDate||'12 months',spNarrative:decision.uwNarrative,loadingBreakdown:riskCalc.loadings,generatedAt:new Date().toISOString()};
+  addLog('sp_handler',`SP processed. Loading: +${decision.premiumLoading}%. ${(decision.conditions||[]).length} conditions applied.`);
   return sp;
 }
 
-function runReferralAgent(decision, extracted, evaluation, riskCalc) {
-  if (!['Refer to Underwriter','Decline'].includes(decision.decision)) {
-    addLog('referral','Case not referred — proceeding through automated pipeline.'); return null;
-  }
-  addLog('referral','Preparing referral package for human underwriter...','warning');
-  const ref = {
-    referralPriority: decision.decision==='Decline'?'HIGH':'MEDIUM',
-    referralTo: 'Senior Underwriter',
-    referralReason: decision.decisionReason,
-    caseSummary: {
-      applicant: extracted.personalDetails?.name,
-      age: extracted.personalDetails?.age,
-      sumAssured: extracted.financialDetails?.sumAssured,
-      riskScore: riskCalc.adjustedScore,
-      riskCategory: riskCalc.riskCategory
-    },
-    agentRecommendation: decision.uwNarrative,
-    dataGaps: evaluation.dataGaps,
-    conflictsFound: evaluation.conflicts,
-    additionalEvidenceNeeded: evaluation.recommendAdditionalEvidence,
-    humanDecisionRequired: true,
-    referralTimestamp: new Date().toISOString()
-  };
-  addLog('referral',`Referral package created. Priority: ${ref.referralPriority}. Awaiting human decision.`,'warning');
-  return ref;
+function agentReferral(decision, extracted, evaluation, riskCalc) {
+  if(!['Refer to Underwriter','Decline'].includes(decision.decision)){addLog('referral','Automated resolution — no referral needed.');return null}
+  addLog('referral','Preparing human underwriter referral package...','warning');
+  return {referralPriority:decision.decision==='Decline'?'HIGH':'MEDIUM',referralTo:'Senior Underwriter',referralReason:decision.decisionReason,caseSummary:{applicant:extracted.personalDetails?.name,age:extracted.personalDetails?.age,sumAssured:extracted.financialDetails?.sumAssured,riskScore:riskCalc.adjustedScore,riskCategory:riskCalc.riskCategory},agentRecommendation:decision.uwNarrative,recommendedAction:decision.recommendedAction,dataGaps:evaluation.dataGaps,conflictsFound:evaluation.conflicts,additionalEvidenceNeeded:evaluation.recommendAdditionalEvidence,humanDecisionRequired:true,referralTimestamp:new Date().toISOString()};
 }
 
-// ════════════════════════════════════════════════
-// PIPELINE ORCHESTRATION
-// ════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+// PIPELINE
+// ════════════════════════════════════════════════════════
 async function runPipeline() {
   const docText = document.getElementById('manualText').value.trim();
-  if (!docText) { showError('Please upload a document or paste text to analyse.'); return; }
-  if (!API_KEY) { showError('Please enter and connect your Gemini API key first.'); return; }
-
-  running = true;
-  results = null;
-  completedAgents = [];
-  currentAgent = null;
-  awaitingHuman = false;
-  pipelineState = {};
-  document.getElementById('runBtn').disabled = true;
-  document.getElementById('runBtn').textContent = '⟳ Running pipeline...';
-  document.getElementById('checkpoint').style.display = 'none';
-  document.getElementById('humanDecisionBanner').style.display = 'none';
-  document.getElementById('viewResultsBtn').style.display = 'none';
+  if (!docText) { showError('Please add or paste document text first.'); return; }
+  if (!API_KEY) { showError('Please connect your Gemini API key first.'); return; }
+  running=true; globalResults=null; completedAgents=[]; pipelineState={};
+  const btn=document.getElementById('runBtn');
+  btn.disabled=true; btn.textContent='⏳ Running pipeline...';
+  document.getElementById('checkpoint').style.display='none';
+  document.getElementById('humanBanner').style.display='none';
+  document.getElementById('viewResBtn').style.display='none';
+  document.getElementById('resDot').style.display='none';
   hideError();
-  AGENTS.forEach(a => setAgentState(a.id,'idle'));
+  AGENTS.forEach(a=>setTileState(a.id,'idle'));
+  updateProgress(0);
 
   try {
-    // Agent 1
-    setAgent('classifier'); pipelineState.classification = await runClassifier(docText); doneAgent('classifier');
-    // Agent 2
-    setAgent('extractor');  pipelineState.extracted = await runExtractor(docText, pipelineState.classification); doneAgent('extractor');
-    // Agent 3
-    setAgent('enricher');   pipelineState.extracted = await runEnricher(pipelineState.extracted, pipelineState.classification); doneAgent('enricher');
-    // Agent 4
-    setAgent('evaluator');  pipelineState.evaluation = await runEvaluator(pipelineState.classification, pipelineState.extracted); doneAgent('evaluator');
+    setTile('classifier'); pipelineState.classification=await agentClassify(docText); doneTile('classifier');
+    setTile('extractor');  pipelineState.extracted=await agentExtract(docText,pipelineState.classification); doneTile('extractor');
+    setTile('enricher');   pipelineState.extracted=agentEnrich(pipelineState.extracted,pipelineState.classification); doneTile('enricher');
+    setTile('evaluator');  pipelineState.evaluation=await agentEvaluate(pipelineState.classification,pipelineState.extracted); doneTile('evaluator');
 
-    // HUMAN CHECKPOINT
-    if (!pipelineState.evaluation.proceedToRisk) {
-      addLog('evaluator','⚠️ HUMAN CHECKPOINT: Low confidence. Awaiting approval.','warning');
-      showCheckpoint('approval');
-      stopRunning();
-      return;
+    if (!pipelineState.evaluation?.proceedToRisk) {
+      addLog('evaluator','⚠️ Low confidence — human checkpoint required','warning');
+      showCheckpoint('approval'); stopRun(); return;
     }
-
     await finishPipeline();
-
-  } catch(err) {
-    showError(`Pipeline error: ${err.message}`);
-    addLog('system','ERROR: '+err.message,'error');
-    stopRunning();
+  } catch(e) {
+    showError(`Pipeline error: ${e.message}`);
+    addLog('system','ERROR: '+e.message,'error');
+    stopRun();
   }
 }
 
 async function finishPipeline() {
   try {
-    const { classification, extracted, evaluation } = pipelineState;
-    // Agent 5
-    setAgent('risk');       pipelineState.riskCalc = runRiskCalculator(classification, extracted, evaluation); doneAgent('risk');
-    // Agent 6
-    setAgent('decision');   pipelineState.decision = await runDecisionAgent(classification, extracted, evaluation, pipelineState.riskCalc); doneAgent('decision');
-    // Agent 7
-    setAgent('sp_handler'); pipelineState.spTerms = runSPHandler(pipelineState.decision, extracted, pipelineState.riskCalc); doneAgent('sp_handler');
-    // Agent 8
-    setAgent('referral');   pipelineState.referral = runReferralAgent(pipelineState.decision, extracted, evaluation, pipelineState.riskCalc); doneAgent('referral');
-
-    // If referral — human decision needed
-    if (pipelineState.referral) {
-      showCheckpoint('decision');
-    }
-
-    pipelineState.stage = 'complete';
-    pipelineState.completedAt = new Date().toISOString();
-    results = pipelineState;
-    renderResults(results);
-    document.getElementById('viewResultsBtn').style.display = '';
-    addLog('system','✅ Pipeline complete — all 8 agents executed.','success');
-  } catch(err) {
-    showError(`Pipeline error: ${err.message}`);
-    addLog('system','ERROR: '+err.message,'error');
-  } finally {
-    stopRunning();
-  }
+    const {classification:cls,extracted,evaluation} = pipelineState;
+    setTile('risk');       pipelineState.riskCalc=agentRisk(cls,extracted,evaluation); doneTile('risk');
+    setTile('decision');   pipelineState.decision=await agentDecide(cls,extracted,evaluation,pipelineState.riskCalc); doneTile('decision');
+    setTile('sp_handler'); pipelineState.spTerms=agentSP(pipelineState.decision,extracted,pipelineState.riskCalc); doneTile('sp_handler');
+    setTile('referral');   pipelineState.referral=agentReferral(pipelineState.decision,extracted,evaluation,pipelineState.riskCalc); doneTile('referral');
+    if (pipelineState.referral) showCheckpoint('decision');
+    pipelineState.stage='complete'; pipelineState.completedAt=new Date().toISOString();
+    globalResults=pipelineState;
+    renderResults(globalResults);
+    document.getElementById('viewResBtn').style.display='';
+    document.getElementById('resDot').style.display='';
+    addLog('system','✅ All 8 agents complete. Assessment ready.','success');
+  } catch(e) {
+    showError(`Pipeline error: ${e.message}`);
+    addLog('system','ERROR: '+e.message,'error');
+  } finally { stopRun(); }
 }
 
-function setAgent(id) { currentAgent=id; setAgentState(id,'active'); document.getElementById('runBtn').textContent=`⟳ ${AGENTS.find(a=>a.id===id)?.name}...`; }
-function doneAgent(id) { completedAgents.push(id); setAgentState(id,'done'); }
-function stopRunning() { running=false; document.getElementById('runBtn').disabled=false; document.getElementById('runBtn').textContent='▶ RUN UNDERWRITING PIPELINE'; currentAgent=null; }
+function setTile(id) {
+  currentAgent=id;
+  setTileState(id,'active');
+  document.getElementById('runBtn').textContent=`⏳ ${AGENTS.find(a=>a.id===id)?.name}...`;
+}
+function doneTile(id) {
+  completedAgents.push(id);
+  setTileState(id,'done');
+  updateProgress(completedAgents.length);
+}
+function setTileState(id,state) {
+  const tile=document.getElementById('tile-'+id);
+  const stat=document.getElementById('atstat-'+id);
+  const sam=document.getElementById('sam-'+id);
+  const samdot=document.getElementById('samdot-'+id);
+  if(!tile)return;
+  tile.className='agent-tile'+(state==='active'?' active':state==='done'?' done':'');
+  if(state==='active'){stat.innerHTML='<span class="spinner"></span>';if(sam){sam.className='agent-mini active';samdot.className='am-dot'}}
+  else if(state==='done'){stat.innerHTML='<span class="checkmark">✓ Done</span>';if(sam){sam.className='agent-mini done';samdot.className='am-dot'}}
+  else{stat.innerHTML='';if(sam){sam.className='agent-mini';samdot.className='am-dot'}}
+}
+function updateProgress(n) {
+  const pct=Math.round((n/8)*100);
+  document.getElementById('trackerFill').style.width=pct+'%';
+  document.getElementById('trackerProgress').textContent=`${n} / 8 complete`;
+}
+function stopRun() {
+  running=false;
+  const btn=document.getElementById('runBtn');
+  btn.disabled=false; btn.textContent='▶ Run Underwriting Pipeline';
+}
 
-// ════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 // HUMAN IN THE LOOP
-// ════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 function showCheckpoint(type) {
-  const cp = document.getElementById('checkpoint');
-  const msg = document.getElementById('checkpointMsg');
-  const btns = document.getElementById('checkpointBtns');
-  cp.style.display = '';
-
-  if (type === 'approval') {
-    msg.textContent = 'Low confidence detected — human approval required before the pipeline can proceed to risk calculation.';
-    btns.innerHTML = `
-      <button class="btn-primary" onclick="approveAndContinue()">✅ Approve & Continue Pipeline</button>
-      <button class="btn-sec" onclick="haltPipeline()">🛑 Halt Pipeline</button>`;
+  const cp=document.getElementById('checkpoint');
+  const msg=document.getElementById('checkpointMsg');
+  const btns=document.getElementById('checkpointBtns');
+  cp.style.display='';
+  if(type==='approval'){
+    msg.textContent='Evaluator flagged low confidence. Human approval required before risk calculation can proceed.';
+    btns.innerHTML=`<button class="btn btn-green" onclick="approveAndContinue()">✅ Approve & Continue</button><button class="btn btn-secondary" onclick="haltPipeline()">🛑 Halt</button>`;
   } else {
-    msg.textContent = 'Case has been referred to a human underwriter. Please review and record your decision below.';
-    btns.innerHTML = ['Accept','Accept with Conditions','Rated','Decline'].map(d =>
-      `<button class="btn-sec" style="border-color:${decisionColor(d)}66;color:${decisionColor(d)};" onclick="recordHumanDecision('${d}')">${d}</button>`
-    ).join('');
+    msg.textContent='Case has been referred to a senior underwriter. Please review and record your final decision below.';
+    btns.innerHTML=['Accept','Accept with Conditions','Rated','Decline'].map(d=>`<button class="btn btn-secondary" style="border-color:${decColor(d)};color:${decColor(d)}" onclick="recordHuman('${d}')">${d}</button>`).join('');
   }
 }
-
 async function approveAndContinue() {
-  const notes = document.getElementById('humanNotes').value;
-  document.getElementById('checkpoint').style.display = 'none';
-  addLog('system','Human approved pipeline continuation. Notes: '+(notes||'None'),'success');
-  running = true;
-  document.getElementById('runBtn').disabled = true;
+  const notes=document.getElementById('humanNotes').value;
+  document.getElementById('checkpoint').style.display='none';
+  addLog('system','Human approved. Notes: '+(notes||'None'),'success');
+  running=true; document.getElementById('runBtn').disabled=true;
   await finishPipeline();
 }
-
 function haltPipeline() {
-  document.getElementById('checkpoint').style.display = 'none';
+  document.getElementById('checkpoint').style.display='none';
   showError('Pipeline halted by human reviewer.');
-  addLog('system','Pipeline halted by human reviewer.','warning');
+  addLog('system','Pipeline halted by human.','warning');
+}
+function recordHuman(dec) {
+  const notes=document.getElementById('humanNotes').value;
+  document.getElementById('checkpoint').style.display='none';
+  if(globalResults){globalResults.humanOverride={decision:dec,notes,timestamp:new Date().toISOString()};renderResults(globalResults);}
+  const b=document.getElementById('humanBanner');
+  b.style.display=''; b.textContent=`✅ Human decision recorded: ${dec}${notes?' — '+notes:''}`;
+  addLog('referral','Human decision: '+dec,'success');
 }
 
-function recordHumanDecision(dec) {
-  const notes = document.getElementById('humanNotes').value;
-  document.getElementById('checkpoint').style.display = 'none';
-  if (results) {
-    results.humanOverride = { decision:dec, notes, timestamp:new Date().toISOString() };
-    renderResults(results);
-  }
-  const banner = document.getElementById('humanDecisionBanner');
-  banner.style.display = '';
-  banner.textContent = `✅ Human underwriter decision recorded: ${dec}${notes?' — '+notes:''}`;
-  addLog('referral','Human decision recorded: '+dec,'success');
-}
-
-// ════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 // RENDER RESULTS
-// ════════════════════════════════════════════════
-function decisionColor(dec) {
-  if (!dec) return '#6C757D';
-  if (dec==='Accept') return '#00C48C';
-  if (dec.includes('Condition')||dec==='Rated') return '#F5A623';
-  if (dec.includes('Refer')) return '#4F8EF7';
-  if (dec==='Decline') return '#E84393';
-  return '#6C757D';
+// ════════════════════════════════════════════════════════
+function decColor(d) {
+  if(!d)return'#6B7280';
+  if(d==='Accept')return'var(--green-600)';
+  if(d.includes('Condition')||d==='Rated')return'var(--amber-600)';
+  if(d.includes('Refer'))return'var(--indigo-600)';
+  if(d==='Decline')return'var(--red-600)';
+  return'#6B7280';
 }
+function decClass(d) {
+  if(!d)return'';
+  if(d==='Accept')return'accept';
+  if(d.includes('Condition'))return'accept-cond';
+  if(d==='Rated')return'rated';
+  if(d.includes('Refer'))return'refer';
+  if(d==='Decline')return'decline';
+  return'';
+}
+function sevClass(s){return s==='critical'?'sev-critical':s==='high'?'sev-high':s==='medium'?'sev-medium':'sev-low';}
+function dataItemClass(v,sev){if(sev==='critical')return'critical';if(sev==='warning'||sev==='flagged')return'flagged';if(sev==='ok')return'ok';return'';}
 
 function renderResults(r) {
-  const dec = r.humanOverride?.decision || r.decision?.decision;
-  const col = decisionColor(dec);
-  let html = '';
+  const dec = r.humanOverride?.decision || r.decision?.decision || 'Pending';
+  const col = decColor(dec);
+  const cls = decClass(dec);
+  const score = r.riskCalc?.adjustedScore ?? 0;
+  const cat = r.riskCalc?.riskCategory || '—';
+  const catCol = r.riskCalc?.categoryColor || '#6B7280';
+  const flags = r.riskCalc?.flags || [];
+  const pd = r.extracted?.personalDetails || {};
+  const fd = r.extracted?.financialDetails || {};
+  const md = r.extracted?.medicalDetails || {};
+  const ev = r.evaluation || {};
+  const critFlags = flags.filter(f=>f.type==='critical');
+  const warnFlags = flags.filter(f=>f.type==='warning');
+  const okFlags = flags.filter(f=>f.type==='ok');
 
-  // Decision banner
-  html += `<div class="decision-banner" style="background:${col}22;border:2px solid ${col};">
-    <div class="dec-icon">⚖️</div>
-    <div class="dec-text" style="color:${col};">${dec || 'Pending'}</div>
-    <div class="dec-narr">${r.decision?.uwNarrative||''}</div>
-    ${r.humanOverride?`<div style="color:#F5A623;font-size:11px;margin-bottom:10px;">👤 Human override — ${r.humanOverride.timestamp}</div>`:''}
-    <div class="badges">
-      <span class="badge" style="background:#4F8EF711;color:#4F8EF7;">Confidence: ${r.decision?.decisionConfidence||0}%</span>
-      <span class="badge" style="background:#F5A62311;color:#F5A623;">Loading: +${r.decision?.premiumLoading||0}%</span>
-      <span class="badge" style="background:#E8439311;color:#E84393;">Risk: ${r.riskCalc?.riskCategory||'-'}</span>
-      <span class="badge" style="background:#00C48C11;color:#00C48C;">Score: ${r.riskCalc?.adjustedScore||0}/100</span>
+  let h = '<div class="results-page">';
+
+  // ── Decision Hero ──
+  h += `<div class="dec-hero ${cls}">
+    <div class="dec-hero-label">Underwriting Assessment Decision</div>
+    <div class="dec-hero-title" style="color:${col}">${esc(dec)}</div>
+    <div class="dec-hero-narr">${esc(r.decision?.uwNarrative||'')}</div>
+    ${r.humanOverride?`<div style="font-size:11px;margin-bottom:12px;opacity:.7">👤 Human override recorded — ${r.humanOverride.timestamp}</div>`:''}
+    <div class="dec-meta-row">
+      ${metaChip('Risk Score',`${score}/100`)}
+      ${metaChip('Risk Category',cat)}
+      ${metaChip('Loading',`+${r.decision?.premiumLoading||0}%`)}
+      ${metaChip('Confidence',`${r.decision?.decisionConfidence||0}%`)}
+      ${metaChip('Quality Grade',ev.qualityGrade||'—')}
+      ${metaChip('Completed',new Date(r.completedAt||Date.now()).toLocaleTimeString())}
     </div>
   </div>`;
 
-  // Two columns
-  html += '<div class="grid-2">';
+  // ── Score + Flags ──
+  h += `<div class="score-section">
+    <div class="score-card">
+      <div class="card-title" style="justify-content:center">Risk Score</div>
+      <div style="position:relative;width:140px;height:140px;margin:0 auto 12px">
+        ${scoreRingSVG(score,catCol)}
+        <div class="score-center">
+          <div class="score-num" style="color:${catCol}">${score}</div>
+          <div class="score-denom">/100</div>
+        </div>
+      </div>
+      <div class="score-cat" style="color:${catCol}">${cat}</div>
+      <div class="score-cat-desc">Base: 100 | Adjusted: ${score}</div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px"><span style="color:var(--text3)">Flags</span><span style="font-weight:600">${flags.length} total</span></div>
+        ${critFlags.length?`<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--red-600)">🚨 Critical</span><span style="font-weight:700;color:var(--red-600)">${critFlags.length}</span></div>`:''}
+        ${warnFlags.length?`<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--amber-600)">⚠️ Warnings</span><span style="font-weight:700;color:var(--amber-600)">${warnFlags.length}</span></div>`:''}
+        ${okFlags.length?`<div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:var(--green-600)">✅ Clear</span><span style="font-weight:700;color:var(--green-600)">${okFlags.length}</span></div>`:''}
+      </div>
+    </div>
 
-  // Classification
-  html += '<div class="card"><div class="card-title" style="color:#4F8EF7;">🗂️ CLASSIFICATION</div>';
-  const cls = r.classification||{};
-  ['documentType','insuranceClass','productType','documentQuality','confidence'].forEach(k=>{
-    if (cls[k]!=null) html+=`<div class="kv"><span>${k}</span><span>${cls[k]}${k==='confidence'?'%':''}</span></div>`;
-  });
-  html += '</div>';
-
-  // Risk breakdown
-  html += '<div class="card"><div class="card-title" style="color:#E84393;">📊 RISK BREAKDOWN</div>';
-  (r.riskCalc?.loadings||[]).forEach(l=>{
-    html+=`<div class="kv"><span>${l.reason}</span><span style="color:#E84393;">${l.adjustment}</span></div>`;
-  });
-  (r.riskCalc?.exclusions||[]).forEach(e=>{
-    html+=`<div class="excl-pill">⛔ ${e}</div>`;
-  });
-  if (!(r.riskCalc?.loadings||[]).length && !(r.riskCalc?.exclusions||[]).length) html+='<div class="kv"><span>No loadings</span><span>Standard risk</span></div>';
-  html += '</div>';
-
-  html += '</div>';
-
-  // Applicant & Medical
-  html += '<div class="grid-2" style="margin-bottom:16px;">';
-  const pd = r.extracted?.personalDetails||{}, fd=r.extracted?.financialDetails||{}, md=r.extracted?.medicalDetails||{};
-  html += '<div class="card"><div class="card-title" style="color:#2AB7CA;">👤 APPLICANT</div>';
-  [['Name',pd.name],['Age',pd.age],['Gender',pd.gender],['Occupation',pd.occupation],['Smoker',pd.smokerStatus],
-   ['Sum Assured',fd.sumAssured?(fd.currency+' '+(+fd.sumAssured).toLocaleString()):null],
-   ['Annual Income',fd.annualIncome?(fd.currency+' '+(+fd.annualIncome).toLocaleString()):null]
-  ].forEach(([k,v])=>{ if(v!=null)html+=`<div class="kv"><span>${k}</span><span>${v}</span></div>`; });
-  html += '</div>';
-  html += '<div class="card"><div class="card-title" style="color:#7C5CBF;">🩺 MEDICAL</div>';
-  [['BMI',md.bmi],['Blood Pressure',md.bloodPressure],
-   ['Conditions',(md.existingConditions||[]).join(', ')||'None declared'],
-   ['Medications',(md.medications||[]).join(', ')||'None'],
-   ['Family History',(md.familyHistory||[]).join(', ')||'None']
-  ].forEach(([k,v])=>{ if(v!=null)html+=`<div class="kv"><span>${k}</span><span>${v}</span></div>`; });
-  html += '</div></div>';
-
-  // Quality evaluation
-  const ev = r.evaluation||{};
-  html += `<div class="card mb-12"><div class="card-title" style="color:#F5A623;">🔁 QUALITY EVALUATION</div><div class="grid-3">
-    <div><div style="color:var(--muted);font-size:10px;">Consistency</div><div style="font-size:15px;font-weight:700;">${ev.consistencyScore||0}%</div></div>
-    <div><div style="color:var(--muted);font-size:10px;">Confidence</div><div style="font-size:15px;font-weight:700;">${ev.confidenceLevel||'-'}</div></div>
-    <div><div style="color:var(--muted);font-size:10px;">Conflicts</div><div style="font-size:15px;font-weight:700;">${(ev.conflicts||[]).length}</div></div>
-  </div>
-  ${(ev.dataGaps||[]).map(g=>`<div style="margin-top:6px;padding:4px 10px;background:#F5A62311;border-radius:6px;font-size:10px;color:#F5A623;">⚠ ${g}</div>`).join('')}
+    <div class="flags-section">
+      <div class="card-title">🚩 Risk Flags</div>
+      <div class="flag-tabs">
+        <div class="flag-tab all sel" id="ftab-all" onclick="filterFlags('all')">All (${flags.length})</div>
+        ${critFlags.length?`<div class="flag-tab critical" id="ftab-critical" onclick="filterFlags('critical')">🚨 Critical (${critFlags.length})</div>`:''}
+        ${warnFlags.length?`<div class="flag-tab warning" id="ftab-warning" onclick="filterFlags('warning')">⚠️ Warnings (${warnFlags.length})</div>`:''}
+        ${okFlags.length?`<div class="flag-tab ok" id="ftab-ok" onclick="filterFlags('ok')">✅ Clear (${okFlags.length})</div>`:''}
+      </div>
+      <div class="flags-grid" id="flagsGrid">
+        ${flags.map(f=>`<div class="flag-card ${f.type}" data-type="${f.type}">
+          <div class="fc-icon">${f.type==='critical'?'🚨':f.type==='warning'?'⚠️':f.type==='ok'?'✅':'ℹ️'}</div>
+          <div><div class="fc-title">${esc(f.title||'')}</div><div class="fc-desc">${esc(f.desc||'')}</div></div>
+        </div>`).join('')||'<div style="color:var(--text3);font-size:12px;padding:20px;text-align:center">No risk flags identified</div>'}
+      </div>
+    </div>
   </div>`;
 
-  // SP Terms
-  if (r.spTerms) {
-    html += `<div class="sp-box mb-12"><div class="card-title" style="color:#FF6B35;">📋 SP CASE TERMS</div>
-      <div class="grid-3">
-        <div><div style="color:var(--muted);font-size:10px;">Type</div><div style="font-size:12px;">${r.spTerms.caseType}</div></div>
-        <div><div style="color:var(--muted);font-size:10px;">Premium Adj.</div><div style="font-size:12px;color:#FF6B35;">${r.spTerms.premiumAdjustment}</div></div>
-        <div><div style="color:var(--muted);font-size:10px;">Review</div><div style="font-size:12px;">${r.spTerms.reviewAt}</div></div>
-      </div>
-      ${(r.spTerms.conditionsApplied||[]).map(c=>`<div style="margin-top:6px;padding:4px 10px;background:#FF6B3511;border-radius:6px;font-size:10px;color:#FF6B35;">• ${c}</div>`).join('')}
-    </div>`;
-  }
-
-  // Referral
-  if (r.referral) {
-    html += `<div class="ref-box mb-12"><div class="card-title" style="color:#4F8EF7;">👥 REFERRAL PACKAGE</div>
-      <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px;">
-        <span class="badge" style="background:#E8439311;color:#E84393;">Priority: ${r.referral.referralPriority}</span>
-        <span style="color:#A0AEC0;font-size:12px;">→ ${r.referral.referralTo}</span>
-      </div>
-      <div style="color:#A0AEC0;font-size:11px;line-height:1.7;margin-bottom:8px;">${r.referral.referralReason}</div>
-      ${(r.referral.additionalEvidenceNeeded||[]).map(e=>`<div class="evi-pill">📎 ${e}</div>`).join('')}
-    </div>`;
-  }
-
-  // Decision conditions
-  if ((r.decision?.conditions||[]).length) {
-    html += `<div class="card mb-12"><div class="card-title" style="color:#00C48C;">⚖️ CONDITIONS APPLIED</div>
-      ${r.decision.conditions.map(c=>`<div class="kv"><span>•</span><span>${c}</span></div>`).join('')}
-    </div>`;
-  }
-
-  // Downloads
-  html += `<hr class="section-sep"><div class="cta-row">
-    <button class="btn-primary" onclick="downloadJSON()">⬇ Download JSON</button>
-    <button class="btn-sec" onclick="downloadReport()">⬇ Download Report (.txt)</button>
+  // ── Medical Values ──
+  h += `<div class="mb16">
+    <div class="data-section-title">🩺 Medical Values</div>
+    <div class="data-grid">
+      ${di('BMI',md.bmi,bmiCls(md.bmi),bmiNote(md.bmi))}
+      ${di('Blood Pressure',md.bloodPressure,'','',)}
+      ${di('Height',md.height_cm?md.height_cm+' cm':null,'','')}
+      ${di('Weight',md.weight_kg?md.weight_kg+' kg':null,'','')}
+      ${di('Smoker Status',pd.smokerStatus,(pd.smokerStatus||'').toLowerCase().includes('non')?'ok':(pd.smokerStatus||'').toLowerCase().includes('smoker')?'flagged':'',(pd.smokerStatus||'').toLowerCase().includes('non')?'No tobacco loading':'Tobacco loading applies')}
+      ${di('Last Medical Exam',md.lastMedicalExam,'','')}
+      ${di('Cholesterol',md.cholesterol,'','')}
+    </div>
+    ${(md.existingConditions||[]).length?`<div class="mb12"><div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Existing Conditions</div><div class="tag-row">${(md.existingConditions||[]).map(c=>`<span class="tag tag-red">${esc(c)}</span>`).join('')}</div></div>`:''}
+    ${(md.medications||[]).length?`<div class="mb12"><div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Medications</div><div class="tag-row">${(md.medications||[]).map(m=>`<span class="tag tag-amber">${esc(m)}</span>`).join('')}</div></div>`:''}
+    ${(md.familyHistory||[]).length?`<div><div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Family History</div><div class="tag-row">${(md.familyHistory||[]).map(h=>`<span class="tag tag-blue">${esc(h)}</span>`).join('')}</div></div>`:''}
   </div>`;
 
-  // Raw JSON
-  html += `<div style="margin-top:20px;"><div style="color:var(--muted);font-size:11px;margin-bottom:8px;">RAW JSON OUTPUT</div>
-    <div class="json-block">${escHtml(JSON.stringify(r,null,2))}</div></div>`;
+  // ── Financial Values ──
+  h += `<div class="mb16">
+    <div class="data-section-title">💰 Financial Values</div>
+    <div class="data-grid">
+      ${di('Sum Assured',fd.sumAssured?(fd.currency||'')+' '+Number(fd.sumAssured||0).toLocaleString():null,saCls(fd.sumAssured),saNote2(fd.sumAssured))}
+      ${di('Annual Income',fd.annualIncome?(fd.currency||'')+' '+Number(fd.annualIncome||0).toLocaleString():null,'','')}
+      ${di('Existing Cover',fd.existingCover?(fd.currency||'')+' '+Number(fd.existingCover||0).toLocaleString():null,'','')}
+      ${di('Net Worth',fd.netWorth?(fd.currency||'')+' '+Number(fd.netWorth||0).toLocaleString():null,'','')}
+      ${di('Premium',fd.premium?(fd.currency||'')+' '+Number(fd.premium||0).toLocaleString():null,'','')}
+    </div>
+  </div>`;
 
-  document.getElementById('resultsContent').innerHTML = html;
+  // ── Applicant + Classification 2-col ──
+  h += `<div class="g2 mb16">
+    <div class="card">
+      <div class="card-title">👤 Applicant Details</div>
+      <div class="kv-list">
+        ${kv('Name',pd.name)}${kv('Date of Birth',pd.dob)}${kv('Age',pd.age)}
+        ${kv('Gender',pd.gender)}${kv('Occupation',pd.occupation)}
+        ${kv('Nationality',pd.nationality)}${kv('Residency',pd.residency)}
+        ${kv('Policy Term',r.extracted?.policyDetails?.term?r.extracted.policyDetails.term+' years':null)}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🗂️ Document Classification</div>
+      <div class="kv-list">
+        ${kv('Document Type',r.classification?.documentType)}
+        ${kv('Insurance Class',r.classification?.insuranceClass)}
+        ${kv('Product Type',r.classification?.productType)}
+        ${kv('Document Quality',r.classification?.documentQuality)}
+        ${kv('AI Confidence',r.classification?.confidence!=null?r.classification.confidence+'%':null)}
+        ${kv('Data Quality',r.extracted?.dataQuality)}
+      </div>
+      ${r.classification?.keyFlags?.length?`<div style="margin-top:10px"><div class="tag-row">${(r.classification.keyFlags||[]).map(f=>`<span class="tag tag-gray">${esc(f)}</span>`).join('')}</div></div>`:''}
+    </div>
+  </div>`;
+
+  // ── Premium Loadings Table ──
+  if((r.riskCalc?.loadings||[]).length) {
+    h += `<div class="card mb16">
+      <div class="card-title">📉 Premium Loadings Breakdown</div>
+      <div style="overflow-x:auto">
+        <table class="data-table">
+          <thead><tr><th>Reason</th><th>Adj.</th><th>Severity</th></tr></thead>
+          <tbody>
+            ${(r.riskCalc.loadings||[]).map(l=>`<tr><td>${esc(l.reason||'')}</td><td style="color:var(--red-600);font-weight:700">${l.adj}%</td><td><span class="sev-pill ${sevClass(l.sev)}">${l.sev||'—'}</span></td></tr>`).join('')}
+            <tr class="total-row"><td>TOTAL LOADING</td><td style="color:var(--red-600)">${(r.riskCalc.loadings||[]).reduce((s,l)=>s+(l.adj||0),0)}%</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+  }
+
+  // ── Exclusions ──
+  if((r.riskCalc?.exclusions||[]).length) {
+    h += `<div class="mb16"><div class="data-section-title">⛔ Exclusions Identified</div>
+      <div class="flags-grid">${(r.riskCalc.exclusions||[]).map(e=>`<div class="flag-card critical"><div class="fc-icon">⛔</div><div><div class="fc-title">Exclusion</div><div class="fc-desc">${esc(e)}</div></div></div>`).join('')}</div>
+    </div>`;
+  }
+
+  // ── Quality Evaluation ──
+  h += `<div class="card mb16">
+    <div class="card-title">🔁 Self-Evaluation Report</div>
+    <div class="g3 mb12">
+      <div style="text-align:center;padding:14px;background:var(--gray-50);border-radius:var(--radius-sm)">
+        <div style="font-size:24px;font-weight:800;color:var(--text)">${ev.consistencyScore||0}%</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">Consistency</div>
+      </div>
+      <div style="text-align:center;padding:14px;background:var(--gray-50);border-radius:var(--radius-sm)">
+        <div style="font-size:24px;font-weight:800;color:var(--text)">${ev.confidenceLevel||'—'}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">Confidence</div>
+      </div>
+      <div style="text-align:center;padding:14px;background:var(--gray-50);border-radius:var(--radius-sm)">
+        <div style="font-size:24px;font-weight:800;color:var(--text)">${ev.qualityGrade||'—'}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">Quality Grade</div>
+      </div>
+    </div>
+    ${ev.evaluatorNotes?`<div style="background:var(--gray-50);border-radius:var(--radius-sm);padding:12px;font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px">${esc(ev.evaluatorNotes)}</div>`:''}
+    ${(ev.conflicts||[]).length?`<div class="mb8"><div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px">Conflicts Found</div><div class="tag-row">${(ev.conflicts||[]).map(c=>`<span class="tag tag-amber">${esc(c)}</span>`).join('')}</div></div>`:''}
+    ${(ev.dataGaps||[]).length?`<div><div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px">Data Gaps</div><div class="tag-row">${(ev.dataGaps||[]).map(g=>`<span class="tag tag-gray">${esc(g)}</span>`).join('')}</div></div>`:''}
+  </div>`;
+
+  // ── SP Terms ──
+  if(r.spTerms) {
+    h += `<div class="card mb16" style="border-left:4px solid var(--amber-500)">
+      <div class="card-title">📋 SP Case Terms</div>
+      <div class="g3 mb12">
+        <div><div style="font-size:10px;color:var(--text3)">Case Type</div><div style="font-weight:700">${esc(r.spTerms.caseType)}</div></div>
+        <div><div style="font-size:10px;color:var(--text3)">Premium Adj.</div><div style="font-weight:700;color:var(--amber-600)">${esc(r.spTerms.premiumAdjustment)}</div></div>
+        <div><div style="font-size:10px;color:var(--text3)">Review At</div><div style="font-weight:700">${esc(r.spTerms.reviewAt)}</div></div>
+      </div>
+      ${(r.spTerms.conditionsApplied||[]).length?`<div class="tag-row">${(r.spTerms.conditionsApplied||[]).map(c=>`<span class="tag tag-amber">${esc(c)}</span>`).join('')}</div>`:''}
+    </div>`;
+  }
+
+  // ── Referral ──
+  if(r.referral) {
+    h += `<div class="card mb16" style="border-left:4px solid var(--indigo-500)">
+      <div class="card-title" style="color:var(--indigo-600)">👥 Referral Package</div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px">
+        <span class="tag tag-red">Priority: ${esc(r.referral.referralPriority)}</span>
+        <span style="font-size:12px;color:var(--text2)">→ ${esc(r.referral.referralTo)}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:10px">${esc(r.referral.referralReason||'')}</div>
+      ${r.referral.recommendedAction?`<div style="background:var(--blue-50);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--blue-700);margin-bottom:8px">💡 <strong>Action:</strong> ${esc(r.referral.recommendedAction)}</div>`:''}
+      ${(r.referral.additionalEvidenceNeeded||[]).length?`<div><div style="font-size:10px;font-weight:700;color:var(--text3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px">Additional Evidence Needed</div><div class="tag-row">${(r.referral.additionalEvidenceNeeded||[]).map(e=>`<span class="tag tag-purple">📎 ${esc(e)}</span>`).join('')}</div></div>`:''}
+    </div>`;
+  }
+
+  // ── Decision Terms ──
+  if((r.decision?.conditions||[]).length||(r.decision?.exclusions||[]).length||r.decision?.specialTerms) {
+    h += `<div class="card mb16" style="border-left:4px solid ${col}">
+      <div class="card-title">⚖️ Decision Terms</div>
+      ${(r.decision?.conditions||[]).map(c=>`<div class="kv"><span class="k">Condition</span><span class="v">${esc(c)}</span></div>`).join('')}
+      ${(r.decision?.exclusions||[]).map(e=>`<div class="kv"><span class="k">Exclusion</span><span class="v" style="color:var(--red-600)">${esc(e)}</span></div>`).join('')}
+      ${r.decision?.specialTerms?`<div class="kv"><span class="k">Special Terms</span><span class="v">${esc(r.decision.specialTerms)}</span></div>`:''}
+      ${r.decision?.nextReviewDate?`<div class="kv"><span class="k">Next Review</span><span class="v">${esc(r.decision.nextReviewDate)}</span></div>`:''}
+    </div>`;
+  }
+
+  // ── Download ──
+  h += `<div class="dl-section">
+    <h3>Export Assessment Report</h3>
+    <p>Download the complete bionic underwriting assessment in your preferred format</p>
+    <div class="dl-btns">
+      <div class="dl-btn" onclick="dlJSON()">
+        <div class="dl-btn-icon">{&nbsp;}</div>
+        <div><div class="dl-btn-label">Download JSON</div><div class="dl-btn-sub">Full structured data export</div></div>
+      </div>
+      <div class="dl-btn" onclick="dlPDF()">
+        <div class="dl-btn-icon">📄</div>
+        <div><div class="dl-btn-label">Download PDF</div><div class="dl-btn-sub">Formatted UW report</div></div>
+      </div>
+    </div>
+  </div>`;
+
+  h += '</div>';
+  document.getElementById('resultsContent').innerHTML = h;
+  showPanel('results');
 }
 
-function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function filterFlags(type) {
+  activeFlag = type;
+  document.querySelectorAll('.flag-tab').forEach(t => t.classList.remove('sel'));
+  const tab = document.getElementById('ftab-'+type);
+  if (tab) tab.classList.add('sel');
+  document.querySelectorAll('#flagsGrid .flag-card').forEach(card => {
+    card.style.display = (type==='all'||card.dataset.type===type) ? '' : 'none';
+  });
+}
 
-// ════════════════════════════════════════════════
+function scoreRingSVG(score, color) {
+  const r=56, cx=70, cy=70, circ=2*Math.PI*r;
+  const filled = circ*(score/100);
+  return `<svg viewBox="0 0 140 140" width="140" height="140">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#F1F5F9" stroke-width="12"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="12"
+      stroke-dasharray="${filled} ${circ}" stroke-dashoffset="${circ*0.25}" stroke-linecap="round"
+      style="transition:stroke-dasharray 1s ease"/>
+  </svg>`;
+}
+
+function metaChip(label, value) {
+  return `<div class="dec-meta-chip"><div class="dmc-label">${label}</div><div class="dmc-value">${esc(String(value||'—'))}</div></div>`;
+}
+function di(label, value, cls, note) {
+  return `<div class="data-item ${cls||''}"><div class="di-label">${label}</div><div class="di-value">${value!=null?esc(String(value)):'—'}</div>${note?`<div class="di-sub">${note}</div>`:''}</div>`;
+}
+function kv(label, value) {
+  if(value==null||value==='')return'';
+  return `<div class="kv"><span class="k">${label}</span><span class="v">${esc(String(value))}</span></div>`;
+}
+function bmiCls(b){if(!b)return'';if(b>=35)return'critical';if(b>=30||b<17)return'flagged';if(b>=18.5&&b<25)return'ok';return'';}
+function bmiNote(b){if(!b)return'';if(b>=40)return'Morbidly obese';if(b>=35)return'Severely obese';if(b>=30)return'Obese';if(b>=25)return'Overweight';if(b>=18.5)return'Normal range ✓';return'Underweight';}
+function saCls(sa){if(!sa)return'';if(sa>2000000)return'critical';if(sa>1000000)return'flagged';return'ok';}
+function saNote2(sa){if(!sa)return'';if(sa>2000000)return'Full financial UW required';if(sa>1000000)return'Financial questionnaire req.';if(sa>500000)return'Financial declaration req.';return'Within standard limits ✓';}
+
+// ════════════════════════════════════════════════════════
 // DOWNLOADS
-// ════════════════════════════════════════════════
-function downloadJSON() {
-  if (!results) return;
-  const blob = new Blob([JSON.stringify(results,null,2)],{type:'application/json'});
-  triggerDownload(blob,'uw-assessment.json');
+// ════════════════════════════════════════════════════════
+function dlJSON() {
+  if(!globalResults)return;
+  const blob=new Blob([JSON.stringify(globalResults,null,2)],{type:'application/json'});
+  trigDL(blob,'uw-assessment.json');
 }
 
-function downloadReport() {
-  if (!results) return;
-  const r = results;
-  const dec = r.humanOverride?.decision || r.decision?.decision;
-  const lines = [
-    'UNDERWRITING ASSESSMENT REPORT',
-    `Generated: ${new Date().toLocaleString()}`,
-    '═'.repeat(55),
-    '',
-    'DOCUMENT CLASSIFICATION',
-    `  Type          : ${r.classification?.documentType}`,
-    `  Insurance     : ${r.classification?.insuranceClass}`,
-    `  Product       : ${r.classification?.productType}`,
-    `  Quality       : ${r.classification?.documentQuality}`,
-    `  Confidence    : ${r.classification?.confidence}%`,
-    '',
-    'APPLICANT DETAILS',
-    `  Name          : ${r.extracted?.personalDetails?.name||'N/A'}`,
-    `  Age           : ${r.extracted?.personalDetails?.age||'N/A'}`,
-    `  Gender        : ${r.extracted?.personalDetails?.gender||'N/A'}`,
-    `  Occupation    : ${r.extracted?.personalDetails?.occupation||'N/A'}`,
-    `  Smoker        : ${r.extracted?.personalDetails?.smokerStatus||'Unknown'}`,
-    '',
-    'FINANCIAL DETAILS',
-    `  Sum Assured   : ${r.extracted?.financialDetails?.currency||''} ${(r.extracted?.financialDetails?.sumAssured||0).toLocaleString()}`,
-    `  Annual Income : ${r.extracted?.financialDetails?.currency||''} ${(r.extracted?.financialDetails?.annualIncome||0).toLocaleString()}`,
-    '',
-    'MEDICAL SUMMARY',
-    `  BMI           : ${r.extracted?.medicalDetails?.bmi||'N/A'}`,
-    `  Conditions    : ${(r.extracted?.medicalDetails?.existingConditions||[]).join(', ')||'None'}`,
-    `  Family Hx     : ${(r.extracted?.medicalDetails?.familyHistory||[]).join(', ')||'None'}`,
-    '',
-    'RISK ASSESSMENT',
-    `  Risk Score    : ${r.riskCalc?.adjustedScore}/100`,
-    `  Risk Category : ${r.riskCalc?.riskCategory}`,
-    `  Loadings      : ${r.riskCalc?.loadings?.length||0}`,
-    ...(r.riskCalc?.loadings||[]).map(l=>`    • ${l.reason} (${l.adjustment})`),
-    `  Exclusions    : ${(r.riskCalc?.exclusions||[]).join(', ')||'None'}`,
-    '',
-    'QUALITY EVALUATION',
-    `  Consistency   : ${r.evaluation?.consistencyScore}%`,
-    `  Confidence    : ${r.evaluation?.confidenceLevel}`,
-    `  Conflicts     : ${(r.evaluation?.conflicts||[]).join('; ')||'None'}`,
-    `  Data Gaps     : ${(r.evaluation?.dataGaps||[]).join('; ')||'None'}`,
-    '',
-    '═'.repeat(55),
-    `UNDERWRITING DECISION: ${dec?.toUpperCase()}`,
-    '═'.repeat(55),
-    '',
-    `  Decision Conf : ${r.decision?.decisionConfidence}%`,
-    `  Premium Load  : +${r.decision?.premiumLoading}%`,
-    `  Conditions    : ${(r.decision?.conditions||[]).join('; ')||'None'}`,
-    `  Exclusions    : ${(r.decision?.exclusions||[]).join('; ')||'None'}`,
-    '',
-    'UNDERWRITER NARRATIVE:',
-    r.decision?.uwNarrative||'',
-    '',
-    ...(r.spTerms?['SP CASE TERMS:',`  Case Type     : ${r.spTerms.caseType}`,`  Premium Adj.  : ${r.spTerms.premiumAdjustment}`,`  Review At     : ${r.spTerms.reviewAt}`,'']:[] ),
-    ...(r.referral?['REFERRAL:',`  Priority      : ${r.referral.referralPriority}`,`  Referred To   : ${r.referral.referralTo}`,`  Reason        : ${r.referral.referralReason}`,'  HUMAN DECISION REQUIRED','']:[] ),
-    ...(r.humanOverride?['HUMAN OVERRIDE:',`  Decision      : ${r.humanOverride.decision}`,`  Notes         : ${r.humanOverride.notes||'None'}`,`  Timestamp     : ${r.humanOverride.timestamp}`,'']:[] ),
-    '',
-    '═'.repeat(55),
-    'AI-assisted — Final decisions require licensed underwriter review.',
-  ];
-  const blob = new Blob([lines.join('\n')],{type:'text/plain'});
-  triggerDownload(blob,'uw-assessment.txt');
+function dlPDF() {
+  if(!globalResults)return;
+  if(typeof window.jspdf==='undefined'){dlTXT();return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const r=globalResults;
+  const dec=r.humanOverride?.decision||r.decision?.decision||'Pending';
+  const W=210,M=16,TW=W-M*2;
+  let y=0;
+
+  function newPage(){doc.addPage();y=18;}
+  function check(need=10){if(y+need>275)newPage();}
+
+  // Cover
+  doc.setFillColor(30,58,138);doc.rect(0,0,W,50,'F');
+  doc.setFillColor(49,46,129);doc.rect(0,35,W,15,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(20);doc.setFont('helvetica','bold');
+  doc.text('NovaBench UW',M,22);
+  doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(147,197,253);
+  doc.text('BIONIC UNDERWRITING ASSESSMENT REPORT',M,30);
+  doc.setTextColor(255,255,255);doc.setFontSize(8);
+  doc.text(`Generated: ${new Date().toLocaleString()} | Powered by Gemini AI`,M,43);
+  y=60;
+
+  // Decision box
+  const dcol=dec==='Accept'?[22,163,74]:dec.includes('Condition')||dec==='Rated'?[217,119,6]:dec.includes('Refer')?[79,70,229]:[220,38,38];
+  doc.setFillColor(dcol[0],dcol[1],dcol[2]);doc.roundedRect(M,y,TW,28,3,3,'F');
+  doc.setTextColor(255,255,255);doc.setFontSize(8);doc.setFont('helvetica','bold');
+  doc.text('UNDERWRITING DECISION',M+6,y+8);
+  doc.setFontSize(16);doc.text(dec,M+6,y+20);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(220,220,220);
+  const narr=doc.splitTextToSize(r.decision?.uwNarrative||'',TW-12);
+  if(narr[0])doc.text(narr[0].substring(0,80),M+6,y+26);
+  y+=36;
+
+  // Score chips row
+  function chip(lbl,val,x,w){
+    doc.setFillColor(248,250,252);doc.roundedRect(x,y,w,14,2,2,'F');
+    doc.setFontSize(7);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);doc.text(lbl,x+3,y+5);
+    doc.setFontSize(10);doc.setFont('helvetica','bold');doc.setTextColor(15,23,42);doc.text(String(val||'—'),x+3,y+12);
+  }
+  chip('Risk Score',`${r.riskCalc?.adjustedScore||0}/100`,M,42);
+  chip('Category',r.riskCalc?.riskCategory||'—',M+44,40);
+  chip('Loading',`+${r.decision?.premiumLoading||0}%`,M+86,36);
+  chip('Confidence',`${r.decision?.decisionConfidence||0}%`,M+124,30);
+  y+=22;
+
+  function section(title,col=[30,64,175]){
+    check(14);
+    doc.setFillColor(...col,15);
+    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(...col);
+    doc.text(title,M,y+4);
+    doc.setDrawColor(...col,80);doc.line(M,y+6,M+TW,y+6);
+    y+=12;
+  }
+  function row(k,v,vColor=[15,23,42]){
+    check(6);
+    doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);
+    doc.text(String(k||''),M,y);
+    doc.setTextColor(...vColor);doc.setFont('helvetica','bold');
+    const sv=doc.splitTextToSize(String(v!=null?v:'—').substring(0,80),TW-50);
+    doc.text(sv[0]||'',M+55,y);
+    y+=5.5;
+  }
+
+  section('APPLICANT DETAILS',[30,64,175]);
+  const pd=r.extracted?.personalDetails||{};
+  row('Name',pd.name);row('Age',pd.age);row('Gender',pd.gender);row('Occupation',pd.occupation);row('Smoker Status',pd.smokerStatus);
+  y+=3;
+
+  section('FINANCIAL SUMMARY',[22,163,74]);
+  const fd=r.extracted?.financialDetails||{};
+  row('Sum Assured',fd.sumAssured?(fd.currency+' '+Number(fd.sumAssured).toLocaleString()):null);
+  row('Annual Income',fd.annualIncome?(fd.currency+' '+Number(fd.annualIncome).toLocaleString()):null);
+  row('Existing Cover',fd.existingCover?(fd.currency+' '+Number(fd.existingCover).toLocaleString()):null);
+  y+=3;
+
+  section('MEDICAL SUMMARY',[124,58,237]);
+  const md=r.extracted?.medicalDetails||{};
+  row('BMI',md.bmi);row('Blood Pressure',md.bloodPressure);
+  row('Conditions',(md.existingConditions||[]).join(', ')||'None');
+  row('Medications',(md.medications||[]).join(', ')||'None');
+  row('Family History',(md.familyHistory||[]).join(', ')||'None');
+  y+=3;
+
+  section('RISK FLAGS',[220,38,38]);
+  (r.riskCalc?.flags||[]).forEach(f=>{
+    const vc=f.type==='critical'?[220,38,38]:f.type==='warning'?[217,119,6]:[22,163,74];
+    row(`[${f.type.toUpperCase()}] ${f.title}`,f.desc,vc);
+  });
+  if(!(r.riskCalc?.flags||[]).length)row('—','No flags identified');
+  y+=3;
+
+  section('PREMIUM LOADINGS',[217,119,6]);
+  (r.riskCalc?.loadings||[]).forEach(l=>row(l.reason,`${l.adj}%`,[220,38,38]));
+  const tot=(r.riskCalc?.loadings||[]).reduce((s,l)=>s+(l.adj||0),0);
+  row('TOTAL LOADING',`${tot}%`,[220,38,38]);
+  y+=3;
+
+  if((r.decision?.conditions||[]).length||(r.decision?.exclusions||[]).length){
+    section('DECISION TERMS',[30,64,175]);
+    (r.decision.conditions||[]).forEach(c=>row('Condition',c));
+    (r.decision.exclusions||[]).forEach(e=>row('Exclusion',e,[220,38,38]));
+    if(r.decision.nextReviewDate)row('Next Review',r.decision.nextReviewDate);
+    y+=3;
+  }
+
+  if(r.spTerms){
+    section('SP CASE TERMS',[217,119,6]);
+    row('Case Type',r.spTerms.caseType);row('Premium',r.spTerms.premiumAdjustment);row('Review At',r.spTerms.reviewAt);
+    (r.spTerms.conditionsApplied||[]).forEach(c=>row('Condition',c));
+    y+=3;
+  }
+
+  if(r.referral){
+    section('REFERRAL PACKAGE',[79,70,229]);
+    row('Priority',r.referral.referralPriority,[220,38,38]);
+    row('Referred To',r.referral.referralTo);
+    row('Reason',r.referral.referralReason);
+    if(r.referral.recommendedAction)row('Action',r.referral.recommendedAction,[79,70,229]);
+    (r.referral.additionalEvidenceNeeded||[]).forEach(e=>row('Evidence Needed',e));
+    y+=3;
+  }
+
+  if(r.humanOverride){
+    section('HUMAN OVERRIDE',[22,163,74]);
+    row('Decision',r.humanOverride.decision,[22,163,74]);
+    row('Notes',r.humanOverride.notes||'None');
+    row('Timestamp',r.humanOverride.timestamp);
+    y+=3;
+  }
+
+  // Footer on all pages
+  const pages=doc.internal.getNumberOfPages();
+  for(let i=1;i<=pages;i++){
+    doc.setPage(i);
+    doc.setFillColor(248,250,252);doc.rect(0,285,W,12,'F');
+    doc.setDrawColor(226,232,240);doc.line(0,285,W,285);
+    doc.setFontSize(6.5);doc.setFont('helvetica','normal');doc.setTextColor(148,163,184);
+    doc.text('NovaBench UW — Bionic Underwriting System — AI-assisted, final decisions require a licensed underwriter',W/2,292,{align:'center'});
+    doc.text(`Page ${i} of ${pages}`,W-M,292,{align:'right'});
+  }
+  doc.save('uw-assessment-novabench.pdf');
 }
 
-function triggerDownload(blob, name) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href=url; a.download=name; document.body.appendChild(a); a.click();
-  document.body.removeChild(a); URL.revokeObjectURL(url);
+function dlTXT() {
+  if(!globalResults)return;
+  const r=globalResults;
+  const dec=r.humanOverride?.decision||r.decision?.decision||'Pending';
+  const lines=['NovaBench UW — Bionic Underwriting Assessment',`Generated: ${new Date().toLocaleString()}`,'═'.repeat(60),'',`DECISION: ${dec}`,`Risk Score: ${r.riskCalc?.adjustedScore||0}/100 — ${r.riskCalc?.riskCategory}`,`Loading: +${r.decision?.premiumLoading||0}%`,`Confidence: ${r.decision?.decisionConfidence||0}%`,'',r.decision?.uwNarrative||'',''];
+  const blob=new Blob([lines.join('\n')],{type:'text/plain'});
+  trigDL(blob,'uw-assessment.txt');
 }
+
+function trigDL(blob,name){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}
+function esc(s){if(s==null)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 </script>
-
 </body>
 </html>
