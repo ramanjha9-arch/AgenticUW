@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -496,13 +495,13 @@ let currentAgent = null;
 let pipelineState = {};
 let uploadedDocs = [];
 let modelStatus = {};
-let selectedModels = { fast: 'gemini-1.5-flash', smart: 'gemini-1.5-pro', light: 'gemini-1.5-flash-8b' };
+let selectedModels = { fast: 'gemini-2.5-flash', smart: 'gemini-2.5-flash-lite', light: 'gemini-3.1-flash-lite' };
 let activeFlag = 'all';
 
 const MODELS_DEF = [
-  { key:'fast',   id:'gemini-1.5-flash',    name:'Gemini 1.5 Flash', desc:'Fast & efficient. Best for extraction, classification, routing.', tag:'flash-1.5', use:'Agents 1, 2, 7, 8', free:true },
-  { key:'smart',  id:'gemini-1.5-pro',      name:'Gemini 1.5 Pro',   desc:'Most intelligent. Best for complex reasoning & final decisions.', tag:'pro-1.5',   use:'Agents 4, 6', free:false },
-  { key:'light',  id:'gemini-1.5-flash-8b', name:'Flash 8B',          desc:'Ultra-fast lightweight model for enrichment & rule application.', tag:'flash-8b',  use:'Agents 3, 5', free:true }
+  { key:'fast',   id:'gemini-2.5-flash',    name:'Gemini 1.5 Flash', desc:'Fast & efficient. Best for extraction, classification, routing.', tag:'flash-1.5', use:'Agents 1, 2, 7, 8', free:true },
+  { key:'smart',  id:'gemini-2.5-flash-lite',      name:'Gemini 1.5 Pro',   desc:'Most intelligent. Best for complex reasoning & final decisions.', tag:'pro-1.5',   use:'Agents 4, 6', free:false },
+  { key:'light',  id:'gemini-3.1-flash-lite', name:'Flash 8B',          desc:'Ultra-fast lightweight model for enrichment & rule application.', tag:'flash-8b',  use:'Agents 3, 5', free:true }
 ];
 
 const AGENTS = [
@@ -661,7 +660,7 @@ function getBestModel(group) {
   const pref = selectedModels[group];
   if (modelStatus[pref]) return pref;
   for (const m of MODELS_DEF) { if (modelStatus[m.id]) return m.id; }
-  return 'gemini-1.5-flash';
+  return 'gemini-2.5-flash';
 }
 
 // ════════════════════════════════════════════════════════
